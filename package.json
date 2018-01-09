@@ -1,0 +1,32 @@
+{
+  "name": "expat-wasm",
+  "version": "1.0.0",
+  "description": "",
+  "main": "lib/index.js",
+  "scripts": {
+    "test": "ava test",
+    "coverage": "nyc npm test",
+    "postcoverage": "nyc report -r html",
+    "lint": "standard"
+  },
+  "keywords": [],
+  "author": "Joe Hildebrand <joe-github@cursive.net>",
+  "license": "MPL-2.0",
+  "devDependencies": {
+    "ava": "^0.24.0",
+    "nyc": "^11.4.1",
+    "standard": "^10.0.3"
+  },
+  "dependencies": {},
+  "standard": {
+    "ignore": [
+      "lib/expat.js"
+    ]
+  },
+  "nyc": {
+    "exclude": [
+      "lib/expat.js",
+      "test/"
+    ]
+  }
+}

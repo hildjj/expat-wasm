@@ -1,0 +1,18 @@
+[
+  "_XML_ErrorString",
+  "_XML_GetCurrentColumnNumber",
+  "_XML_GetCurrentLineNumber",
+  "_XML_GetErrorCode",
+  "_XML_Parse",
+  "_XML_ParserCreateNS",
+  "_XML_ParserFree",
+  "_XML_SetCdataSectionHandler",
+  "_XML_SetCharacterDataHandler",
+  "_XML_SetCommentHandler",
+  "_XML_SetElementHandler",
+  "_XML_SetExternalEntityRefHandler",
+  "_XML_SetNamespaceDeclHandler",
+  "_XML_SetNotationDeclHandler",
+  "_XML_SetProcessingInstructionHandler",
+  "_XML_SetUnparsedEntityDeclHandler"
+]
