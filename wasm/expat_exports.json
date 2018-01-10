@@ -14,5 +14,6 @@
   "_XML_SetNamespaceDeclHandler",
   "_XML_SetNotationDeclHandler",
   "_XML_SetProcessingInstructionHandler",
-  "_XML_SetUnparsedEntityDeclHandler"
+  "_XML_SetUnparsedEntityDeclHandler",
+  "_XML_SetUserData"
 ]
