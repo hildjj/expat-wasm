@@ -15,6 +15,7 @@ To use:
     async function f () {
       let p = await XmlParser.create()
       p.on('startElement', (name, attributes) => ...)
+      p.parse('<foo/>')
     }
     f()
 
