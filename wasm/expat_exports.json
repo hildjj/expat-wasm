@@ -1,6 +1,7 @@
 [
   "_XML_ErrorString",
   "_XML_ExpatVersion",
+  "_XML_FreeContentModel",
   "_XML_GetCurrentColumnNumber",
   "_XML_GetCurrentLineNumber",
   "_XML_GetErrorCode",
@@ -23,7 +24,7 @@
   "_XML_SetStartDoctypeDeclHandler",
   "_XML_SetStartElementHandler",
   "_XML_SetStartNamespaceDeclHandler",
-  "_XML_SetUnparsedEntityDeclHandler",
+  "_XML_SetEntityDeclHandler",
   "_XML_SetUserData",
   "_XML_SetXmlDeclHandler",
   "_structOffsets"
