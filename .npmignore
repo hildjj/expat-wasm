@@ -8,4 +8,4 @@ docs/
 .jsdoc.conf
 .vscode/
 test/
-*.tgz
+*.tgz.travis.yml
