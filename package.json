@@ -8,7 +8,8 @@
     "coverage": "nyc npm test",
     "postcoverage": "nyc report -r html",
     "lint": "standard",
-    "doc": "jsdoc -c .jsdoc.conf"
+    "doc": "jsdoc -c .jsdoc.conf",
+    "coveralls": "nyc report --reporter=text-lcov | coveralls"
   },
   "engines": {
     "node": ">=9.3.0"
