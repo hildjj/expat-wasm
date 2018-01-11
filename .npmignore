@@ -1,0 +1,11 @@
+node_modules/
+lib/libexpat/
+npm-debug.log
+wasm/
+coverage/
+.nyc_output/
+docs/
+.jsdoc.conf
+.vscode/
+test/
+*.tgz

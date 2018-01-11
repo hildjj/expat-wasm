@@ -1,5 +1,5 @@
 emcc libexpat/expat/lib/.libs/libexpat.1.dylib \
-  -o expat.js \
+  -o ../lib/expat.js \
   -O2 \
   --pre-js prejs \
   -s EXTRA_EXPORTED_RUNTIME_METHODS='["cwrap", "addFunction", "removeFunction", "Pointer_stringify"]' \
