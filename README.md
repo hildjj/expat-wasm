@@ -22,3 +22,6 @@ To use:
 There are [docs](https://hildjj.github.io/expat-wasm/).
 
 Requires nodejs 9 or higher (WASM!), and might work in a browser, perhaps.
+
+[![Build Status](https://travis-ci.org/hildjj/expat-wasm.svg?branch=master)](https://travis-ci.org/hildjj/expat-wasm)
+[![Coverage Status](https://coveralls.io/repos/github/hildjj/expat-wasm/badge.svg?branch=master)](https://coveralls.io/github/hildjj/expat-wasm?branch=master)
