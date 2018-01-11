@@ -18,4 +18,6 @@ To use:
     }
     f()
 
+There are [docs](https://hildjj.github.io/expat-wasm/).
+
 Requires nodejs 9 or higher (WASM!), and might work in a browser, perhaps.
