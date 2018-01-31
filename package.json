@@ -9,6 +9,7 @@
     "postcoverage": "nyc report -r html",
     "lint": "standard",
     "doc": "jsdoc -c .jsdoc.conf",
+    "prerelease": "npm run lint && npm run test && npm run doc",
     "release": "npm version patch && git push --follow-tags && npm publish",
     "coveralls": "nyc report --reporter=text-lcov | coveralls"
   },
@@ -33,7 +34,8 @@
   "repository": "hildjj/expat-wasm",
   "standard": {
     "ignore": [
-      "lib/expat.js"
+      "lib/expat.js",
+      "docs/"
     ]
   },
   "nyc": {
