@@ -1,5 +1,0 @@
-// make sure wasm file is loaded relative to the current directory
-const path = require('path');
-Module.locateFile = function (f) {
-  return path.join(__dirname, f)
-};

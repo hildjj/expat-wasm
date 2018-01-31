@@ -1,6 +1,6 @@
 git clone https://github.com/libexpat/libexpat
 cd libexpat/expat
 ./buildconf.sh
-emconfigure ./configure --without-xmlwf --without-docbook CFLAGS=-O2
+emconfigure ./configure --without-xmlwf --without-docbook CFLAGS=-Os
 rm -f a.out*
 emmake make

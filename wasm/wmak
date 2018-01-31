@@ -1,7 +1,9 @@
-emcc libexpat/expat/lib/.libs/libexpat.1.dylib \
+emcc \
+  -Os \
+  --closure 1 \
+  libexpat/expat/lib/.libs/xml*.o \
   -o ../lib/expat.js \
-  -O2 \
-  --pre-js prejs \
+  --pre-js pre.js \
   -s EXTRA_EXPORTED_RUNTIME_METHODS='["cwrap", "addFunction", "removeFunction", "Pointer_stringify"]' \
   -s EXPORTED_FUNCTIONS=@expat_exports.json \
   -s WASM=1 \

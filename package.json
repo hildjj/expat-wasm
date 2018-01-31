@@ -24,11 +24,11 @@
   "author": "Joe Hildebrand <joe-github@cursive.net>",
   "license": "MPL-2.0",
   "devDependencies": {
-    "ava": "^0.24.0",
-    "nyc": "^11.4.1",
-    "standard": "^10.0.3",
+    "ava": "^0.25.0",
     "jsdoc": "^3.5.5",
-    "minami": "^1.2.3"
+    "minami": "^1.2.3",
+    "nyc": "^11.4.1",
+    "standard": "^10.0.3"
   },
   "repository": "hildjj/expat-wasm",
   "standard": {

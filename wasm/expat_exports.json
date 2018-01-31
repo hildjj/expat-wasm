@@ -26,6 +26,5 @@
   "_XML_SetStartNamespaceDeclHandler",
   "_XML_SetEntityDeclHandler",
   "_XML_SetUserData",
-  "_XML_SetXmlDeclHandler",
-  "_structOffsets"
+  "_XML_SetXmlDeclHandler"
 ]
