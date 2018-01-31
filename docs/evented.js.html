@@ -395,13 +395,13 @@ class XmlParser extends EventEmitter {
   _entityDecl (event, entityName, isParameterEntity, value, valueLength, base, systemId, publicId, notationName) {
     this.emit(
       event,
-      entityName ? expat.Pointer_stringify(entityName) : null,
+      expat.Pointer_stringify(entityName),
       !!isParameterEntity,
       value ? expat.Pointer_stringify(value, valueLength) : null,
-      base ? expat.Pointer_stringify(base) : null,
-      systemId ? expat.Pointer_stringify(systemId) : null,
-      publicId ? expat.Pointer_stringify(publicId) : null,
-      notationName ? expat.Pointer_stringify(notationName) : null)
+      expat.Pointer_stringify(base),
+      expat.Pointer_stringify(systemId),
+      expat.Pointer_stringify(publicId),
+      expat.Pointer_stringify(notationName))
   }
 
   _simpleEvent (event, ...args) {
@@ -443,6 +443,7 @@ class XmlParser extends EventEmitter {
       // TODO: this doesn't work yet
       XmlParser.XML_ParserReset(this.parser, this.encoding)
     }
+    return res
   }
 
   /**
