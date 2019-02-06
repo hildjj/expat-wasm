@@ -1,11 +1,12 @@
 emcc \
   -Os \
   --closure 1 \
+  --llvm-lto 1 \
   libexpat/expat/lib/.libs/xml*.o \
   -o ../lib/expat.js \
   --pre-js pre.js \
+  -s RESERVED_FUNCTION_POINTERS=30 \
   -s EXTRA_EXPORTED_RUNTIME_METHODS='["cwrap", "addFunction", "removeFunction", "Pointer_stringify"]' \
   -s EXPORTED_FUNCTIONS=@expat_exports.json \
   -s WASM=1 \
-  -s WARN_ON_UNDEFINED_SYMBOLS=1 \
-  -s RESERVED_FUNCTION_POINTERS=20
+  -s WARN_ON_UNDEFINED_SYMBOLS=1

@@ -19,7 +19,7 @@ class ParseStream {
 }
 
 test('version', async t => {
-  t.is(await XmlParser.version(), 'expat_2.2.5')
+  t.is(await XmlParser.version(), 'expat_2.2.6')
 })
 
 test('parse', async t => {
@@ -42,9 +42,9 @@ test('parse', async t => {
   <baz xmlns="urn:f" x:c="no">&js;</baz>
 </x:foo>`)
 
-  t.deepEqual(p.triple('foo'), {local: 'foo'})
-  t.deepEqual(p.triple('urn:f|foo|x'), {ns: 'urn:f', local: 'foo', prefix: 'x'})
-  t.deepEqual(p.triple('urn:f|foo'), {ns: 'urn:f', local: 'foo'})
+  t.deepEqual(p.triple('foo'), { local: 'foo' })
+  t.deepEqual(p.triple('urn:f|foo|x'), { ns: 'urn:f', local: 'foo', prefix: 'x' })
+  t.deepEqual(p.triple('urn:f|foo'), { ns: 'urn:f', local: 'foo' })
 
   t.deepEqual(ps.read(), ['xmlDecl', '1.0', '', true])
   t.deepEqual(ps.read(), ['processingInstruction', 'xml-stylesheet', 'href="mystyle.css" type="text/css"'])
@@ -54,7 +54,7 @@ test('parse', async t => {
   t.deepEqual(ps.read(), ['notationDecl', 'jpeg', '', '', 'JPG 1.0'])
   t.deepEqual(ps.read(), ['endDoctypeDecl'])
   t.deepEqual(ps.read(), ['startNamespaceDecl', 'x', 'urn:f'])
-  t.deepEqual(ps.read(), ['startElement', 'urn:f|foo|x', {a: 'b'}])
+  t.deepEqual(ps.read(), ['startElement', 'urn:f|foo|x', { a: 'b' }])
   t.deepEqual(ps.read(), ['characterData', '\n'])
   t.deepEqual(ps.read(), ['characterData', '  '])
   t.deepEqual(ps.read(), ['comment', 'ack'])
@@ -81,7 +81,7 @@ test('parse', async t => {
   t.deepEqual(ps.read(), ['characterData', '\n'])
   t.deepEqual(ps.read(), ['characterData', '  '])
   t.deepEqual(ps.read(), ['startNamespaceDecl', '', 'urn:f'])
-  t.deepEqual(ps.read(), ['startElement', 'urn:f|baz', {'urn:f|c|x': 'no'}])
+  t.deepEqual(ps.read(), ['startElement', 'urn:f|baz', { 'urn:f|c|x': 'no' }])
   t.deepEqual(ps.read(), ['characterData', 'EcmaScript'])
   t.deepEqual(ps.read(), ['endElement', 'urn:f|baz'])
   t.deepEqual(ps.read(), ['endNamespaceDecl', ''])
