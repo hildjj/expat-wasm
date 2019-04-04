@@ -1,12 +1,31 @@
+#!/usr/bin/env bash
+
+DEST="../lib/expat"
+DESTJS="${DEST}.js"
+DESTWASM="${DEST}.wasm"
+DESTWASMJS="${DEST}.wasm.js"
+SED=gsed
+
 emcc \
-  -Os \
-  --closure 1 \
-  --llvm-lto 1 \
   libexpat/expat/lib/.libs/xml*.o \
-  -o ../lib/expat.js \
+  -o "${DESTJS}" \
   --pre-js pre.js \
   -s RESERVED_FUNCTION_POINTERS=30 \
-  -s EXTRA_EXPORTED_RUNTIME_METHODS='["cwrap", "addFunction", "removeFunction", "Pointer_stringify"]' \
+  -s EXTRA_EXPORTED_RUNTIME_METHODS='["cwrap", "addFunction", "removeFunction", "UTF8ToString"]' \
   -s EXPORTED_FUNCTIONS=@expat_exports.json \
+  -s MODULARIZE=1 \
   -s WASM=1 \
-  -s WARN_ON_UNDEFINED_SYMBOLS=1
+  -s NO_EXIT_RUNTIME=1 \
+  -s ASSERTIONS=1 \
+  -s WARN_ON_UNDEFINED_SYMBOLS=1 \
+  --llvm-lto 1 \
+  -Os
+
+#  --closure 1 \
+
+echo -n 'module.exports = Buffer.from(`' > "${DESTWASMJS}"
+base64 -b 72 "${DESTWASM}" >> "${DESTWASMJS}"
+echo "\`, 'base64')" >> "${DESTWASMJS}"
+rm "${DESTWASM}"
+# fs isn't needed and makes webpack fail
+"${SED}" -i -r 's/require\("fs"\)/{}/g' "${DESTJS}"

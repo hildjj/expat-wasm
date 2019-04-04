@@ -10,3 +10,4 @@ docs/
 test/
 *.tgz
 .travis.yml
+webpack-demo/

@@ -1,17 +1,14 @@
 'use strict'
 const test = require('ava')
-const XmlParser = require('../lib/evented')
+const XmlParser = require('../lib/index')
 
 class ParseStream {
   constructor (parser) {
-    this.parser = parser
-    this.old_emit = this.parser.emit
-    this.parser.emit = this._capture.bind(this)
     this.events = []
-  }
-  _capture (event, ...args) {
-    this.events.push([event, ...args])
-    this.old_emit.call(this.parser, event, ...args)
+    this.parser = parser
+    parser.on('*', (event, ...args) => {
+      this.events.push([event, ...args])
+    })
   }
   read () {
     return this.events.shift()
