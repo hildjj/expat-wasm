@@ -11,7 +11,7 @@ To install:
 
 To use:
 
-    const {XmlParser} = require('expat-wasm')
+    const XmlParser = require('expat-wasm')
     async function f () {
       let p = await XmlParser.create()
       p.on('startElement', (name, attributes) => ...)
