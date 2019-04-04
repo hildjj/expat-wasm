@@ -55,7 +55,7 @@ and ship the WASM binary in the NPM package.  This means you get a real,
 battle-tested XML parser, with 0 runtime dependencies.</p>
 <p>To install:</p>
 <pre class="prettyprint source"><code>npm install --save expat-wasm</code></pre><p>To use:</p>
-<pre class="prettyprint source"><code>const {XmlParser} = require('expat-wasm')
+<pre class="prettyprint source"><code>const XmlParser = require('expat-wasm')
 async function f () {
   let p = await XmlParser.create()
   p.on('startElement', (name, attributes) => ...)
