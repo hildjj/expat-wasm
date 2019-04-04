@@ -11,9 +11,9 @@
   "license": "MPL-2.0",
   "devDependencies": {
     "webpack": "^4.29.6",
-    "webpack-cli": "^3.2.3"
+    "webpack-cli": "^3.3.0"
   },
   "dependencies": {
-    "expat-wasm": "1.0.4"
+    "expat-wasm": "2.0.0"
   }
 }
