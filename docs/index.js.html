@@ -97,7 +97,9 @@ class XmlParser extends EventEmitter {
    * @param {string} encoding - one of null, "US-ASCII", "UTF-8", "UTF-16"
    *   or "ISO-8859-1".  null, the default, will do content sniffing.
    * @param {string} [separator='|'] - the separator for namespace URI and
-   *   element/attribute name.
+   *   element/attribute name.  Use XmlParser.NO_NAMESPACES to get Expat's
+   *   old, broken namespace non-implementation via XmlParserCreate instead
+   *   of XmlParserCreateNS.
    * @returns {XmlParser}
    *
    * @memberOf XmlParser
@@ -145,9 +147,11 @@ class XmlParser extends EventEmitter {
       ;[
         ['XML_ExpatVersion', 'string', []],
         ['XML_FreeContentModel', 'void', ['number', 'number']],
+        ['XML_ParserCreate', 'number', ['string']],
         ['XML_ParserCreateNS', 'number', ['string', 'number']],
         ['XML_ParserFree', 'void', ['number']],
-        ['XML_Parse', 'void', ['number', 'string', 'number', 'number']],
+        ['XML_Parse', 'void', ['number', 'array', 'number', 'number']],
+        ['XML_SetParamEntityParsing', 'number', ['number', 'number']],
         ['XML_SetReturnNSTriplet', 'void', ['number', 'number']],
         ['XML_ParserReset', 'void', ['number', 'string']],
         ['XML_GetErrorCode', 'number', ['number']],
@@ -340,10 +344,20 @@ class XmlParser extends EventEmitter {
     }
     super()
     this.separator = separator
-    this.parser = XmlParser.XML_ParserCreateNS(encoding, separator.charCodeAt(0))
+    if (separator === XmlParser.NO_NAMESPACES) {
+      this.parser = XmlParser.XML_ParserCreate(encoding)
+    } else {
+      this.parser = XmlParser.XML_ParserCreateNS(encoding, separator.charCodeAt(0))
+      XmlParser.XML_SetReturnNSTriplet(this.parser, 1)
+    }
     this.id = XmlParser.pointers.add(this)
     XmlParser.XML_SetUserData(this.parser, this.id)
-    XmlParser.XML_SetReturnNSTriplet(this.parser, 1)
+    this.encoding = {
+      'US-ASCII': 'ascii',
+      'UTF-8': 'utf8',
+      'UTF-16': 'utf16le',
+      'ISO-8859-1': 'latin1'
+    }[encoding] || 'utf8'
     for (const [k, v] of Object.entries(XmlParser.EVENTS)) {
       v(this.parser, XmlParser.CB_TYPES[k])
     }
@@ -386,6 +400,13 @@ class XmlParser extends EventEmitter {
       !!internalSubset)
   }
   __chase (model, m) {
+    /**
+     * @typedef {Object} Model
+     * @property {string} name - Name of the model
+     * @property {number} type - Empty=1, Any, Mixed, Name, Choice, Seq
+     * @property {number} quant - None=0, Optional, Star, Plus
+     * @property {Array&lt;Model>} children
+     */
     const a = model / 4
     const [type, quant, name, numchildren, children] = expat.HEAPU32.slice(a, a + 5)
     m.type = type
@@ -438,7 +459,7 @@ class XmlParser extends EventEmitter {
    * Parse a chunk of text.  If this is not the last (or only) chunk,
    * set `final` to 0.
    *
-   * @param {string} chunk - Input text
+   * @param {string|Buffer|Uint8Array|Uint8ClampedArray} chunk - Input text
    * @param {number} [final=1] - 0 if not the last or only chunk.
    *
    * @memberOf XmlParser
@@ -461,7 +482,18 @@ class XmlParser extends EventEmitter {
    * @fires XmlParser#xmlDecl
    */
   parse (chunk, final = 1) {
-    const res = XmlParser.XML_Parse(this.parser, chunk, chunk.length, final)
+    if (typeof chunk === 'string') {
+      chunk = Buffer.from(chunk, this.encoding)
+    }
+
+    const len = chunk.length
+    if (Buffer.isBuffer(chunk)) {
+      chunk = new Uint8Array(chunk, 0, len)
+    } else if (!(chunk instanceof Uint8Array || chunk instanceof Uint8ClampedArray)) {
+      throw new Error('Expected chunk to be a string, Buffer, Uint8Array, or Uint8ClampedArray')
+    }
+
+    const res = XmlParser.XML_Parse(this.parser, chunk, len, final)
     if (res === 0) {
       throw new XmlParseError(this.parser)
     } else if ((res === 1) &amp;&amp; (final === 1)) {
@@ -473,11 +505,12 @@ class XmlParser extends EventEmitter {
 
   /**
    * @typedef {Object} Pieces
-   * @property {string} pieces.ns - the namespace URI
-   * @property {string} pieces.local - the local name,
+   * @property {string} ns - the namespace URI
+   * @property {string} local - the local name,
    *   or the EVENTS name if no namespace
-   * @property {string} pieces.prefix - the prefix used for the current name
+   * @property {string} prefix - the prefix used for the current name
    */
+
   /**
    * Parse an element or attribute name.
    *
@@ -512,6 +545,10 @@ class XmlParser extends EventEmitter {
     delete this.id
   }
 }
+/**
+ * Use as the separator to treat namespaces in legacy mode.
+ */
+XmlParser.NO_NAMESPACES = Symbol('NO_NAMESPACES')
 module.exports = XmlParser
 </code></pre>
         </article>

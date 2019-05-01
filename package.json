@@ -27,7 +27,7 @@
     "ava": "^1.4.1",
     "jsdoc": "^3.5.5",
     "minami": "^1.2.3",
-    "nyc": "^13.3.0",
+    "nyc": "^14.0.0",
     "standard": "^12.0.1"
   },
   "repository": "hildjj/expat-wasm",
@@ -40,6 +40,7 @@
   "nyc": {
     "exclude": [
       "lib/expat.js",
+      "lib/expat.wasm.js",
       "test/"
     ]
   }

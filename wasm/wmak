@@ -19,9 +19,9 @@ emcc \
   -s ASSERTIONS=1 \
   -s WARN_ON_UNDEFINED_SYMBOLS=1 \
   --llvm-lto 1 \
+  --closure 1 \
   -Os
 
-#  --closure 1 \
 
 echo -n 'module.exports = Buffer.from(`' > "${DESTWASMJS}"
 base64 -b 72 "${DESTWASM}" >> "${DESTWASMJS}"

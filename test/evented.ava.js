@@ -150,3 +150,27 @@ test('chunks', async t => {
     ['endElement', 'foo']
   ])
 })
+
+test('no namespaces', async t => {
+  const p = await XmlParser.create(null, XmlParser.NO_NAMESPACES)
+  const ps = new ParseStream(p)
+  p.parse(Buffer.from('<foo xmlns='), 0)
+  let chunk = Buffer.from('"urn:bar">')
+  chunk = new Uint8Array(chunk, 0, chunk.length)
+  p.parse(chunk, 0)
+  chunk = Buffer.from('<b:boo xmlns:b="urn:b"/></foo>')
+  chunk = new Uint8Array(chunk, 0, chunk.length)
+  p.parse(chunk, 1)
+  t.deepEqual(ps.events, [
+    ['startElement', 'foo', { xmlns: 'urn:bar' }],
+    ['startElement', 'b:boo', { 'xmlns:b': 'urn:b' }],
+    ['endElement', 'b:boo'],
+    ['endElement', 'foo']
+  ])
+})
+
+test('input types', async t => {
+  const p = await XmlParser.create()
+  t.throws(() => p.parse(null))
+  t.throws(() => p.parse({}))
+})
