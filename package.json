@@ -34,8 +34,11 @@
   "standard": {
     "ignore": [
       "lib/expat.js",
+      "lib/expat.wasm.js",
+      "webpack-demo/",
       "docs/"
-    ]
+    ],
+    "globals": ["WebAssembly"]
   },
   "nyc": {
     "exclude": [
