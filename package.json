@@ -4,7 +4,7 @@
   "description": "Evented parser based on a WASM-compiled version of expat",
   "main": "lib/index.js",
   "scripts": {
-    "test": "ava test",
+    "test": "ava",
     "coverage": "nyc -r html npm test",
     "lint": "standard",
     "doc": "jsdoc -c .jsdoc.conf",
@@ -24,11 +24,11 @@
   "author": "Joe Hildebrand <joe-github@cursive.net>",
   "license": "MPL-2.0",
   "devDependencies": {
-    "ava": "^1.4.1",
-    "jsdoc": "^3.5.5",
+    "ava": "^3.14.0",
+    "jsdoc": "^3.6.6",
     "minami": "^1.2.3",
-    "nyc": "^14.0.0",
-    "standard": "^12.0.1"
+    "nyc": "^15.1.0",
+    "standard": "^16.0.3"
   },
   "repository": "hildjj/expat-wasm",
   "standard": {
