@@ -6,6 +6,7 @@ class Counted {
   constructor () {
     this.id = Counted.count++
   }
+
   count (event, extra) {
     return [event, this.id + extra]
   }

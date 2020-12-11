@@ -10,6 +10,7 @@ class ParseStream {
       this.events.push([event, ...args])
     })
   }
+
   read () {
     return this.events.shift()
   }
