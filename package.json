@@ -24,7 +24,7 @@
   "author": "Joe Hildebrand <joe-github@cursive.net>",
   "license": "MPL-2.0",
   "devDependencies": {
-    "ava": "^3.14.0",
+    "ava": "^5.2.0",
     "jsdoc": "^3.6.6",
     "minami": "^1.2.3",
     "nyc": "^15.1.0",
