@@ -5,7 +5,7 @@
   "main": "lib/index.js",
   "scripts": {
     "test": "ava",
-    "coverage": "nyc -r html npm test",
+    "coverage": "c8 npm test",
     "lint": "standard",
     "doc": "jsdoc -c .jsdoc.conf",
     "prerelease": "npm run lint && npm run test && npm run doc && git diff --quiet --exit-code",
@@ -13,7 +13,7 @@
     "coveralls": "nyc report --reporter=text-lcov | coveralls"
   },
   "engines": {
-    "node": ">=12"
+    "node": ">=16"
   },
   "keywords": [
     "xml",
@@ -27,7 +27,6 @@
     "ava": "^5.2.0",
     "jsdoc": "^4.0.2",
     "minami": "^1.2.3",
-    "nyc": "^15.1.0",
     "standard": "^17.0.0"
   },
   "repository": "hildjj/expat-wasm",
@@ -41,15 +40,5 @@
     "globals": [
       "WebAssembly"
     ]
-  },
-  "nyc": {
-    "exclude": [
-      "lib/expat.js",
-      "lib/expat.wasm.js",
-      "test/"
-    ]
-  },
-  "dependencies": {
-    "automake": "0.1.4"
   }
 }

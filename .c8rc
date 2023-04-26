@@ -1,0 +1,12 @@
+{
+  "reporter": [
+    "text",
+    "lcov"
+  ],
+  "exclude": [
+    "test/**",
+    "node_modules/**",
+    "lib/expat.js",
+    "lib/expat.wasm.js"
+  ]
+}
