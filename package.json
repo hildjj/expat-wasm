@@ -5,7 +5,7 @@
   "main": "lib/index.js",
   "scripts": {
     "test": "ava",
-    "coverage": "nyc -r html npm test",
+    "coverage": "c8 npm test",
     "lint": "standard",
     "doc": "jsdoc -c .jsdoc.conf",
     "prerelease": "npm run lint && npm run test && npm run doc && git diff --quiet --exit-code",
@@ -13,7 +13,7 @@
     "coveralls": "nyc report --reporter=text-lcov | coveralls"
   },
   "engines": {
-    "node": ">=12"
+    "node": ">=16"
   },
   "keywords": [
     "xml",
@@ -22,13 +22,13 @@
     "wasm"
   ],
   "author": "Joe Hildebrand <joe-github@cursive.net>",
-  "license": "MPL-2.0",
+  "license": "MIT",
   "devDependencies": {
-    "ava": "^3.14.0",
-    "jsdoc": "^3.6.6",
+    "ava": "^5.2.0",
+    "c8": "7.13.0",
+    "jsdoc": "^4.0.2",
     "minami": "^1.2.3",
-    "nyc": "^15.1.0",
-    "standard": "^16.0.3"
+    "standard": "^17.0.0"
   },
   "repository": "hildjj/expat-wasm",
   "standard": {
@@ -40,13 +40,6 @@
     ],
     "globals": [
       "WebAssembly"
-    ]
-  },
-  "nyc": {
-    "exclude": [
-      "lib/expat.js",
-      "lib/expat.wasm.js",
-      "test/"
     ]
   }
 }

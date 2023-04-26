@@ -17,7 +17,7 @@ class ParseStream {
 }
 
 test('version', async t => {
-  t.is(await XmlParser.version(), 'expat_2.2.6')
+  t.is(await XmlParser.version(), 'expat_2.5.0')
 })
 
 test('parse', async t => {

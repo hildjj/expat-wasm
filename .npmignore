@@ -11,3 +11,5 @@ test/
 *.tgz
 .travis.yml
 webpack-demo/
+.c8rc
+.github/
