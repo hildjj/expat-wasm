@@ -24,11 +24,11 @@
   "author": "Joe Hildebrand <joe-github@cursive.net>",
   "license": "MPL-2.0",
   "devDependencies": {
-    "ava": "^3.14.0",
-    "jsdoc": "^3.6.6",
+    "ava": "^5.2.0",
+    "jsdoc": "^4.0.2",
     "minami": "^1.2.3",
     "nyc": "^15.1.0",
-    "standard": "^16.0.3"
+    "standard": "^17.0.0"
   },
   "repository": "hildjj/expat-wasm",
   "standard": {
@@ -48,5 +48,8 @@
       "lib/expat.wasm.js",
       "test/"
     ]
+  },
+  "dependencies": {
+    "automake": "0.1.4"
   }
 }
