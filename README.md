@@ -21,7 +21,7 @@ To use:
 
 There are [docs](https://hildjj.github.io/expat-wasm/).
 
-Requires nodejs 9 or higher (WASM!), and works in a browser using WebPack.  See
+Requires nodejs 16 or higher, and works in a browser using WebPack.  See
 the [webpack-demo](https://github.com/hildjj/expat-wasm/tree/master/webpack-demo)
 directory for an example.
 
