@@ -5,7 +5,7 @@ import XmlParser from '../lib/index.js'
 
 class ParseStream {
   /**
-   * 
+   *
    * @param {XmlParser} parser
    */
   constructor (parser) {

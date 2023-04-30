@@ -1,5 +1,5 @@
 import test from 'ava'
-import {Pointers} from '../lib/pointers.js'
+import { Pointers } from '../lib/pointers.js'
 
 class Counted {
   constructor () {
@@ -9,7 +9,7 @@ class Counted {
   /**
    * @param {string} event
    * @param {number} extra
-   * @returns 
+   * @returns
    */
   count (event, extra) {
     return [event, this.id + extra]
