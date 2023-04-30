@@ -39,6 +39,10 @@ test('add-remove', t => {
   t.is(p.get(i0)?.id, d.id)
   t.deepEqual(p.available, 1)
   t.is(p.add(new Counted()), 1)
+
+  p.remove(1)
+  t.throws(() => p.remove(1))
+  t.throws(() => p.remove(10001))
 })
 
 test('call', t => {
