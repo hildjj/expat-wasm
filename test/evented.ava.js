@@ -1,12 +1,20 @@
-'use strict'
-const test = require('ava')
-const XmlParser = require('../lib/index')
+import test from 'ava'
+import XmlParser from '../lib/index.js'
+
+/** @typedef {[string, ...any]} Event */
 
 class ParseStream {
+  /**
+   * 
+   * @param {XmlParser} parser
+   */
   constructor (parser) {
+    /**
+     * @type {Event[]}
+     */
     this.events = []
     this.parser = parser
-    parser.on('*', (event, ...args) => {
+    parser.on('*', /** @param {string} event */ (event, ...args) => {
       this.events.push([event, ...args])
     })
   }
@@ -16,13 +24,12 @@ class ParseStream {
   }
 }
 
-test('version', async t => {
-  t.is(await XmlParser.version(), 'expat_2.5.0')
+test('version', t => {
+  t.is(XmlParser.XML_ExpatVersion(), 'expat_2.5.0')
 })
 
 test('parse', async t => {
-  t.throws(() => new XmlParser())
-  const p = await XmlParser.create()
+  const p = new XmlParser()
   const ps = new ParseStream(p)
   p.parse(`<?xml version="1.0" standalone="yes"?>
 <?xml-stylesheet href="mystyle.css" type="text/css"?>
@@ -92,7 +99,7 @@ test('parse', async t => {
 })
 
 test('tdt', async t => {
-  const p = await XmlParser.create()
+  const p = new XmlParser()
   const ps = new ParseStream(p)
   p.parse(`<!DOCTYPE TVSCHEDULE [
   <!ELEMENT TVSCHEDULE (CHANNEL+)>
@@ -101,6 +108,7 @@ test('tdt', async t => {
   <!ATTLIST CHANNEL CHAN (t|f) "t">
 ]>
 <TVSCHEDULE><CHANNEL/></TVSCHEDULE>`)
+  p.destroy()
 
   t.deepEqual(ps.events, [
     ['startDoctypeDecl', 'TVSCHEDULE', '', '', true],
@@ -134,15 +142,13 @@ test('tdt', async t => {
 })
 
 test('error', async t => {
-  t.throws(() => new XmlParser())
-  t.throws(() => XmlParser._initialize())
-  const p = await XmlParser.create()
+  const p = new XmlParser()
   t.throws(() => p.parse('>>'))
   p.destroy()
 })
 
 test('chunks', async t => {
-  const p = await XmlParser.create()
+  const p = new XmlParser()
   const ps = new ParseStream(p)
   p.parse('<fo', 0)
   p.parse('o/>')
@@ -153,14 +159,16 @@ test('chunks', async t => {
 })
 
 test('no namespaces', async t => {
-  const p = await XmlParser.create(null, XmlParser.NO_NAMESPACES)
+  const p = new XmlParser(null, XmlParser.NO_NAMESPACES)
   const ps = new ParseStream(p)
   p.parse(Buffer.from('<foo xmlns='), 0)
+
+  /** @type {Buffer|Uint8ClampedArray|Uint8Array} */
   let chunk = Buffer.from('"urn:bar">')
   chunk = new Uint8Array(chunk, 0, chunk.length)
   p.parse(chunk, 0)
   chunk = Buffer.from('<b:boo xmlns:b="urn:b"/></foo>')
-  chunk = new Uint8Array(chunk, 0, chunk.length)
+  chunk = new Uint8ClampedArray(chunk, 0, chunk.length)
   p.parse(chunk, 1)
   t.deepEqual(ps.events, [
     ['startElement', 'foo', { xmlns: 'urn:bar' }],
@@ -171,7 +179,9 @@ test('no namespaces', async t => {
 })
 
 test('input types', async t => {
-  const p = await XmlParser.create()
+  const p = new XmlParser()
+  // @ts-ignore
   t.throws(() => p.parse(null))
+  // @ts-ignore
   t.throws(() => p.parse({}))
 })

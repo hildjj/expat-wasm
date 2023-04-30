@@ -3,7 +3,7 @@
 <head>
     
     <meta charset="utf-8">
-    <title>Home - Documentation</title>
+    <title>pointers.js - Documentation</title>
     
     
     <script src="scripts/prettify/prettify.js"></script>
@@ -35,57 +35,121 @@
 
 <div id="main">
     
+    <h1 class="page-title">pointers.js</h1>
+    
 
     
 
 
 
     
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * Maintain a bi-directional mapping between objects and small integers, which
+ * can be use as fake "pointers" to pass back and forth to WASM.
+ * @private
+ */
+export class Pointers {
+  /**
+   * @type {object[]}
+   */
+  #pointers = []
 
+  /**
+   * @type {number[]}
+   */
+  #unused = []
 
-    <section class="package">
-        <h3> </h3>		
-    </section>
+  get size() {
+    return this.#pointers.length
+  }
 
+  get available() {
+    return this.#unused.length
+  }
 
+  /**
+   * Track an object, return its "pointer".
+   *
+   * @param {object} obj
+   * @returns {number}
+   */
+  add (obj) {
+    let index = this.#unused.pop()
+    if (index == null) {
+      index = this.#pointers.push(obj) - 1
+    } else {
+      this.#pointers[index] = obj
+    }
+    return index
+  }
 
+  /**
+   * Remove a given object from tracking.  Will reuse the "pointer" later if
+   * possible.
+   *
+   * @param {number} index
+   */
+  remove (index) {
+    if (this.#unused.indexOf(index) !== -1) {
+      throw new Error("Already deleted")
+    }
+    delete this.#pointers[index]
+    this.#unused.push(index)
+  }
 
+  /**
+   * Dereference the "pointer", returning the object associated with this index.
+   *
+   * @param {number} index
+   * @returns {object|undefined} The object, if it exists, otherwise undefined.
+   */
+  get (index) {
+    return this.#pointers[index]
+  }
 
+  /**
+   * Call a function on the object stored at the given index. Set up for
+   * bind() to work better.
+   *
+   * @param {string} funcName The name of the function on *index
+   * @param {string} event The first parameter of the function call.  Usually
+   *   an event name.
+   * @param {number} index Index of the object to call through.
+   * @param  {...any} args Other function call arguments
+   * @returns {any} Whatever the function returns.
+   */
+  call (funcName, event, index, ...args) {
+    const o = this.get(index)
+    if (!o) {
+      throw new TypeError(`Invalid object index: ${index}`)
+    }
+    // @ts-ignore
+    const func = o[funcName]
+    const ftyp = typeof func
+    if (ftyp !== 'function') {
+      throw new TypeError(`Invalid object for function: "${funcName}" ${ftyp} ${func}`)
+    }
+    return func.call(o, event, ...args)
+  }
 
-
-
-
-    
-
-
-
-    <section class="readme usertext">
-        <article><p>An XML parser based on <a href="https://github.com/libexpat/libexpat">expat</a>.</p>
-<p>The approach taken here was to compile to WASM with
-<a href="https://kripken.github.io/emscripten-site/index.html">emscripten</a>,
-and ship the WASM binary in the NPM package.  This means you get a real,
-battle-tested XML parser, with 0 runtime dependencies.</p>
-<p>To install:</p>
-<pre><code>npm install --save expat-wasm
-</code></pre>
-<p>To use:</p>
-<pre><code>const XmlParser = require('expat-wasm')
-async function f () {
-  let p = await XmlParser.create()
-  p.on('startElement', (name, attributes) =&gt; ...)
-  p.parse('&lt;foo/&gt;')
+  /**
+   * Bind a function call on a particular function name and event name.
+   *
+   * @param {string} funcName The name of the function on *index
+   * @param {string} event The first parameter of the function call.  Usually
+   *   an event name.
+   * @returns {function}
+   */
+  bind (funcName, event) {
+    // Bind to this, so that this.get works
+    return this.call.bind(this, funcName, event)
+  }
 }
-f()
 </code></pre>
-<p>There are <a href="https://hildjj.github.io/expat-wasm/">docs</a>.</p>
-<p>Requires nodejs 16 or higher, and works in a browser using WebPack.  See
-the <a href="https://github.com/hildjj/expat-wasm/tree/master/webpack-demo">webpack-demo</a>
-directory for an example.</p>
-<p><a href="https://github.com/hildjj/expat-wasm/actions/workflows/node.js.yml"><img src="https://github.com/hildjj/expat-wasm/actions/workflows/node.js.yml/badge.svg" alt="Tests"></a>
-<a href="https://codecov.io/gh/hildjj/expat-wasm"><img src="https://codecov.io/gh/hildjj/expat-wasm/branch/master/graph/badge.svg?token=GQ5IHsZb8S" alt="codecov"></a></p></article>
+        </article>
     </section>
-
-
 
 
 

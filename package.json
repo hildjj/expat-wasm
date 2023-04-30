@@ -3,6 +3,8 @@
   "version": "2.0.2",
   "description": "Evented parser based on a WASM-compiled version of expat",
   "main": "lib/index.js",
+  "type": "module",
+  "types": "types/index.d.ts",
   "scripts": {
     "test": "ava",
     "coverage": "c8 npm test",
@@ -10,10 +12,8 @@
     "doc": "jsdoc -c .jsdoc.conf",
     "prerelease": "npm run lint && npm run test && npm run doc && git diff --quiet --exit-code",
     "release": "npm version patch && git push --follow-tags && npm publish",
-    "coveralls": "nyc report --reporter=text-lcov | coveralls"
-  },
-  "engines": {
-    "node": ">=16"
+    "ts": "tsc",
+    "build": "(cd wasm && ./setup && ./wmak) && npm run ts && npm run doc && npm run lint"
   },
   "keywords": [
     "xml",
@@ -24,11 +24,14 @@
   "author": "Joe Hildebrand <joe-github@cursive.net>",
   "license": "MIT",
   "devDependencies": {
+    "@types/emscripten": "1.39.6",
+    "@types/node": "18.16.3",
     "ava": "^5.2.0",
     "c8": "7.13.0",
+    "docdash": "2.0.1",
     "jsdoc": "^4.0.2",
-    "minami": "^1.2.3",
-    "standard": "^17.0.0"
+    "standard": "^17.0.0",
+    "typescript": "5.0.4"
   },
   "repository": "hildjj/expat-wasm",
   "standard": {
@@ -41,5 +44,8 @@
     "globals": [
       "WebAssembly"
     ]
+  },
+  "engines": {
+    "node": ">=16"
   }
 }

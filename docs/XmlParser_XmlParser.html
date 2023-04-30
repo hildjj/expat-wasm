@@ -3,7 +3,7 @@
 <head>
     
     <meta charset="utf-8">
-    <title>Home - Documentation</title>
+    <title>XmlParser - Documentation</title>
     
     
     <script src="scripts/prettify/prettify.js"></script>
@@ -35,57 +35,257 @@
 
 <div id="main">
     
+    <h1 class="page-title">XmlParser</h1>
+    
 
     
 
 
 
+
+<section>
+
+<header>
+    
+        <h2>
+            <span class="ancestors"><a href="XmlParser.html">XmlParser</a>#</span>
+        
+        
+            XmlParser
+        
+        </h2>
+        
+    
+</header>
+
+<article>
+    
+        <div class="container-overview">
+        
+            
+
+    
+
+    <h4 class="name" id="XmlParser"><span class="type-signature"></span>new XmlParser<span class="signature">(encoding<span class="signature-attributes">opt</span>, separator<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span></h4>
+
     
 
 
-    <section class="package">
-        <h3> </h3>		
-    </section>
 
 
+<dl class="details">
+    
+    <dt class="tag-description">Description:</dt>
+    <dd class="tag-description"><ul class="dummy"><li>Create a parser instance.</li></ul></dd>
+    
 
-
-
-
-
-
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="index.js.html">index.js</a>, <a href="index.js.html#line432">line 432</a>
+    </li></ul></dd>
+    
 
     
 
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
 
 
-    <section class="readme usertext">
-        <article><p>An XML parser based on <a href="https://github.com/libexpat/libexpat">expat</a>.</p>
-<p>The approach taken here was to compile to WASM with
-<a href="https://kripken.github.io/emscripten-site/index.html">emscripten</a>,
-and ship the WASM binary in the NPM package.  This means you get a real,
-battle-tested XML parser, with 0 runtime dependencies.</p>
-<p>To install:</p>
-<pre><code>npm install --save expat-wasm
-</code></pre>
-<p>To use:</p>
-<pre><code>const XmlParser = require('expat-wasm')
-async function f () {
-  let p = await XmlParser.create()
-  p.on('startElement', (name, attributes) =&gt; ...)
-  p.parse('&lt;foo/&gt;')
-}
-f()
-</code></pre>
-<p>There are <a href="https://hildjj.github.io/expat-wasm/">docs</a>.</p>
-<p>Requires nodejs 16 or higher, and works in a browser using WebPack.  See
-the <a href="https://github.com/hildjj/expat-wasm/tree/master/webpack-demo">webpack-demo</a>
-directory for an example.</p>
-<p><a href="https://github.com/hildjj/expat-wasm/actions/workflows/node.js.yml"><img src="https://github.com/hildjj/expat-wasm/actions/workflows/node.js.yml/badge.svg" alt="Tests"></a>
-<a href="https://codecov.io/gh/hildjj/expat-wasm"><img src="https://codecov.io/gh/hildjj/expat-wasm/branch/master/graph/badge.svg?token=GQ5IHsZb8S" alt="codecov"></a></p></article>
-    </section>
 
 
+
+
+
+
+
+
+
+
+
+    <h5 class="h5-parameters">Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+        <th>Default</th>
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>encoding</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="global.html#XML_Encoding">XML_Encoding</a></span>
+
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                </td>
+            
+
+            <td class="description last">null will do content sniffing.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>separator</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+|
+
+<span class="param-type">XmlParser.NO_NAMESPACES</span>
+
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    <code>'|'</code>
+                
+                </td>
+            
+
+            <td class="description last">the separator
+  for namespace URI and element/attribute name.  Use
+  XmlParser.NO_NAMESPACES to get Expat's old, broken namespace
+  non-implementation via XmlParserCreate instead of XmlParserCreateNS.</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+        </div>
+    
+
+    
+
+    
+
+    
+    
+    
+
+     
+
+    
+
+    
+
+    
+
+    
+
+    
+</article>
+
+</section>
 
 
 

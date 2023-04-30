@@ -13,3 +13,4 @@ test/
 webpack-demo/
 .c8rc
 .github/
+tsconfig.json
