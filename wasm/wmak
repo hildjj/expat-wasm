@@ -16,18 +16,11 @@ emcc \
   -s EXPORT_ES6=1 \
   -s MODULARIZE=1 \
   -s WASM=1 \
-  -s ENVIRONMENT=web,node \
   -s NO_EXIT_RUNTIME=1 \
   -s ASSERTIONS=1 \
   -s WARN_ON_UNDEFINED_SYMBOLS=1 \
   -s ALLOW_TABLE_GROWTH=1 \
   -flto=full \
+  -s SINGLE_FILE=1 \
   --closure 1 \
   -Os
-
-echo -n 'export default Buffer.from(`' > "${DESTWASMJS}"
-base64 -b 72 -i "${DESTWASM}" >> "${DESTWASMJS}"
-echo "\`, 'base64')" >> "${DESTWASMJS}"
-rm "${DESTWASM}"
-# fs isn't needed and makes webpack fail
-"${SED}" -i -r 's/require\("fs"\)/{}/g' "${DESTJS}"
