@@ -10,8 +10,6 @@
     "coverage": "c8 npm test",
     "lint": "eslint . --ext js",
     "doc": "jsdoc -c .jsdoc.conf",
-    "prerelease": "npm run lint && npm run test && npm run doc && git diff --quiet --exit-code",
-    "release": "npm version patch && git push --follow-tags && npm publish",
     "ts": "tsc",
     "webpack": "cd webpack-demo && npm run build",
     "postwebpack": "copyfiles -V webpack-demo/index.html webpack-demo/dist/* docs/",
