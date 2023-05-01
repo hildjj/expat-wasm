@@ -1,8 +1,8 @@
+import {Pointers} from '../lib/pointers.js'
 import test from 'ava'
-import { Pointers } from '../lib/pointers.js'
 
 class Counted {
-  constructor () {
+  constructor() {
     this.id = Counted.count++
   }
 
@@ -11,7 +11,7 @@ class Counted {
    * @param {number} extra
    * @returns
    */
-  count (event, extra) {
+  count(event, extra) {
     return [event, this.id + extra]
   }
 }

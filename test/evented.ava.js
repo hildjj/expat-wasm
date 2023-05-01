@@ -1,5 +1,6 @@
-import test from 'ava'
+import {Buffer} from 'buffer'
 import XmlParser from '../lib/index.js'
+import test from 'ava'
 
 /** @typedef {[string, ...any]} Event */
 
@@ -8,7 +9,7 @@ class ParseStream {
    *
    * @param {XmlParser} parser
    */
-  constructor (parser) {
+  constructor(parser) {
     /**
      * @type {Event[]}
      */
@@ -19,7 +20,7 @@ class ParseStream {
     })
   }
 
-  read () {
+  read() {
     return this.events.shift()
   }
 }
@@ -47,9 +48,9 @@ test('parse', t => {
   <baz xmlns="urn:f" x:c="no">&js;</baz>
 </x:foo>`)
 
-  t.deepEqual(p.triple('foo'), { local: 'foo' })
-  t.deepEqual(p.triple('urn:f|foo|x'), { ns: 'urn:f', local: 'foo', prefix: 'x' })
-  t.deepEqual(p.triple('urn:f|foo'), { ns: 'urn:f', local: 'foo' })
+  t.deepEqual(p.triple('foo'), {local: 'foo'})
+  t.deepEqual(p.triple('urn:f|foo|x'), {ns: 'urn:f', local: 'foo', prefix: 'x'})
+  t.deepEqual(p.triple('urn:f|foo'), {ns: 'urn:f', local: 'foo'})
 
   t.deepEqual(ps.read(), ['xmlDecl', '1.0', '', true])
   t.deepEqual(ps.read(), ['processingInstruction', 'xml-stylesheet', 'href="mystyle.css" type="text/css"'])
@@ -59,7 +60,7 @@ test('parse', t => {
   t.deepEqual(ps.read(), ['notationDecl', 'jpeg', '', '', 'JPG 1.0'])
   t.deepEqual(ps.read(), ['endDoctypeDecl'])
   t.deepEqual(ps.read(), ['startNamespaceDecl', 'x', 'urn:f'])
-  t.deepEqual(ps.read(), ['startElement', 'urn:f|foo|x', { a: 'b' }])
+  t.deepEqual(ps.read(), ['startElement', 'urn:f|foo|x', {a: 'b'}])
   t.deepEqual(ps.read(), ['characterData', '\n'])
   t.deepEqual(ps.read(), ['characterData', '  '])
   t.deepEqual(ps.read(), ['comment', 'ack'])
@@ -86,7 +87,7 @@ test('parse', t => {
   t.deepEqual(ps.read(), ['characterData', '\n'])
   t.deepEqual(ps.read(), ['characterData', '  '])
   t.deepEqual(ps.read(), ['startNamespaceDecl', '', 'urn:f'])
-  t.deepEqual(ps.read(), ['startElement', 'urn:f|baz', { 'urn:f|c|x': 'no' }])
+  t.deepEqual(ps.read(), ['startElement', 'urn:f|baz', {'urn:f|c|x': 'no'}])
   t.deepEqual(ps.read(), ['characterData', 'EcmaScript'])
   t.deepEqual(ps.read(), ['endElement', 'urn:f|baz'])
   t.deepEqual(ps.read(), ['endNamespaceDecl', ''])
@@ -121,23 +122,23 @@ test('tdt', t => {
           name: 'CHANNEL',
           quant: 3,
           type: 4,
-          children: []
-        }
-      ]
+          children: [],
+        },
+      ],
     }],
     ['elementDecl', 'CHANNEL', {
       name: 'CHANNEL',
       quant: 0,
       type: 3,
-      children: []
+      children: [],
     }],
     ['attlistDecl', 'TVSCHEDULE', 'NAME', 'CDATA', '', true],
     ['attlistDecl', 'CHANNEL', 'CHAN', '(t|f)', 't', false],
     ['endDoctypeDecl'],
     ['startElement', 'TVSCHEDULE', {}],
-    ['startElement', 'CHANNEL', { CHAN: 't' }],
+    ['startElement', 'CHANNEL', {CHAN: 't'}],
     ['endElement', 'CHANNEL'],
-    ['endElement', 'TVSCHEDULE']
+    ['endElement', 'TVSCHEDULE'],
   ])
 })
 
@@ -160,7 +161,7 @@ test('chunks', t => {
   p.parse('o/>')
   t.deepEqual(ps.events, [
     ['startElement', 'foo', {}],
-    ['endElement', 'foo']
+    ['endElement', 'foo'],
   ])
 })
 
@@ -177,10 +178,10 @@ test('no namespaces', t => {
   chunk = new Uint8ClampedArray(chunk, 0, chunk.length)
   p.parse(chunk, 1)
   t.deepEqual(ps.events, [
-    ['startElement', 'foo', { xmlns: 'urn:bar' }],
-    ['startElement', 'b:boo', { 'xmlns:b': 'urn:b' }],
+    ['startElement', 'foo', {xmlns: 'urn:bar'}],
+    ['startElement', 'b:boo', {'xmlns:b': 'urn:b'}],
     ['endElement', 'b:boo'],
-    ['endElement', 'foo']
+    ['endElement', 'foo'],
   ])
 })
 
@@ -198,7 +199,7 @@ test('encoding', t => {
   p.parse(Buffer.from('<foo/>', 'utf16le'))
   t.deepEqual(ps.events, [
     ['startElement', 'foo', {}],
-    ['endElement', 'foo']
+    ['endElement', 'foo'],
   ])
   p.destroy()
   const q = new XmlParser('unknown')

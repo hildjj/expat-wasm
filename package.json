@@ -8,7 +8,7 @@
   "scripts": {
     "test": "ava",
     "coverage": "c8 npm test",
-    "lint": "standard",
+    "lint": "eslint . --ext js",
     "doc": "jsdoc -c .jsdoc.conf",
     "prerelease": "npm run lint && npm run test && npm run doc && git diff --quiet --exit-code",
     "release": "npm version patch && git push --follow-tags && npm publish",
@@ -24,27 +24,17 @@
   "author": "Joe Hildebrand <joe-github@cursive.net>",
   "license": "MIT",
   "devDependencies": {
+    "@cto.af/eslint-config": "1.0.5",
     "@types/emscripten": "1.39.6",
     "@types/node": "18.16.3",
     "ava": "^5.2.0",
     "c8": "7.13.0",
     "docdash": "2.0.1",
+    "eslint": "8.39.0",
     "jsdoc": "^4.0.2",
-    "standard": "^17.0.0",
     "typescript": "5.0.4"
   },
   "repository": "hildjj/expat-wasm",
-  "standard": {
-    "ignore": [
-      "lib/expat.js",
-      "lib/expat.wasm.js",
-      "webpack-demo/",
-      "docs/"
-    ],
-    "globals": [
-      "WebAssembly"
-    ]
-  },
   "engines": {
     "node": ">=16"
   }

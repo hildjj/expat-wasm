@@ -4,15 +4,14 @@ const input = document.querySelector('#input')
 const output = document.querySelector('#output')
 const parser = new XmlParser()
 parser.on('*', (event, ...args) => {
-  let element = document.createElement('div')
+  const element = document.createElement('div')
   element.innerHTML = `${event}: ${args.map(a => JSON.stringify(a)).join(', ')}`
 
   output.appendChild(element)
 })
 
 function process() {
-  console.log('process', input.value)
-  output.innerHTML = "";
+  output.innerHTML = ''
   try {
     parser.parse(input.value, 1)
   } catch (e) {
