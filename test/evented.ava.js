@@ -206,3 +206,17 @@ test('encoding', t => {
   t.is(q.encoding, 'utf8')
   q.destroy()
 })
+
+test('separator', t => {
+  t.throws(() => new XmlParser(null, Symbol('wrong')))
+  const p = new XmlParser(null, ',')
+  const ps = new ParseStream(p)
+  p.parse('<f:g xmlns:f="foo"/>')
+  t.deepEqual(ps.events, [
+    ['startNamespaceDecl', 'f', 'foo'],
+    ['startElement', 'foo,g,f', {}],
+    ['endElement', 'foo,g,f'],
+    ['endNamespaceDecl', 'f'],
+  ])
+  p.destroy()
+})
