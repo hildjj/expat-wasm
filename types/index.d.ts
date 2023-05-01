@@ -1,3 +1,4 @@
+/// <reference types="node" resolution-mode="require"/>
 /**
  * Error parsing XML
  *
@@ -61,7 +62,8 @@ export class XmlParser extends EventEmitter {
     /**
      * Encodings that expat supports.
      *
-     * @typedef {undefined|null|"US-ASCII"|"UTF-8"| "UTF-16"| "ISO-8859-1"} XML_Encoding
+     * @typedef { undefined|null|"US-ASCII"|"UTF-8"|"UTF-16"|"ISO-8859-1"
+     * } XML_Encoding
      */
     /**
      * Construct a new parser. If encoding is non-null, it specifies a character
@@ -126,38 +128,6 @@ export class XmlParser extends EventEmitter {
      * @returns {number} ERROR=0, OK=1, SUSPENDED=2
      */
     static XML_Parse(parser: number, str: Uint8Array | Uint8ClampedArray, len: number, isFinal: number): number;
-    static XML_PARAM_ENTITY_PARSING_NEVER: number;
-    static XML_PARAM_ENTITY_PARSING_UNLESS_STANDALONE: number;
-    static XML_PARAM_ENTITY_PARSING_ALWAYS: number;
-    /**
-     * Controls parsing of parameter entities (including the external DTD
-     * subset). If parsing of parameter entities is enabled, then references to
-     * external parameter entities (including the external DTD subset) will be
-     * passed to the handler set with XML_SetExternalEntityRefHandler.  The
-     * context passed will be 0.
-     *
-     * Unlike external general entities, external parameter entities can only be
-     * parsed synchronously.  If the external parameter entity is to be parsed,
-     * it must be parsed during the call to the external entity ref handler: the
-     * complete sequence of XML_ExternalEntityParserCreate,
-     * XML_Parse/XML_ParseBuffer and XML_ParserFree calls must be made during
-     * this call.  After XML_ExternalEntityParserCreate has been called to
-     * create the parser for the external parameter entity (context must be 0
-     * for this call), it is illegal to make any calls on the old parser until
-     * XML_ParserFree has been called on the newly created parser. If the
-     * library has been compiled without support for parameter entity parsing
-     * (ie without XML_DTD being defined), then XML_SetParamEntityParsing will
-     * return 0 if parsing of parameter entities is requested; otherwise it will
-     * return non-zero. Note: If XML_SetParamEntityParsing is called after
-     * XML_Parse or XML_ParseBuffer, then it has no effect and will always
-     * return 0. Note: If parser == NULL, the function will do nothing and
-     * return 0.
-     *
-     * @param {number} parser
-     * @param {number} code
-     * @returns {number} 0 on fail
-     */
-    static XML_SetParamEntityParsing(parser: number, code: number): number;
     /**
      * This function only has an effect when using a parser created with
      * XML_ParserCreateNS, i.e. when namespace processing is in effect. The
@@ -587,4 +557,5 @@ export class XmlParser extends EventEmitter {
 }
 export default XmlParser;
 import { EventEmitter } from 'events';
+import { Buffer } from 'buffer';
 import { Pointers } from './pointers.js';

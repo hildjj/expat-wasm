@@ -28,5 +28,7 @@ Requires nodejs 16 or higher, and works in a modern browser using WebPack.  See
 the [webpack-demo](https://github.com/hildjj/expat-wasm/tree/master/webpack-demo)
 directory for simple WebPack example.
 
+See an online demo [here](https://hildjj.github.io/expat-wasm/webpack-demo).
+
 [![Tests](https://github.com/hildjj/expat-wasm/actions/workflows/node.js.yml/badge.svg)](https://github.com/hildjj/expat-wasm/actions/workflows/node.js.yml)
 [![codecov](https://codecov.io/gh/hildjj/expat-wasm/branch/master/graph/badge.svg?token=GQ5IHsZb8S)](https://codecov.io/gh/hildjj/expat-wasm)

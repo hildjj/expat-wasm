@@ -45,8 +45,9 @@
     
     <section>
         <article>
-            <pre class="prettyprint source linenums"><code>import { EventEmitter } from 'events'
-import { Pointers } from './pointers.js'
+            <pre class="prettyprint source linenums"><code>import {Buffer} from 'buffer'
+import {EventEmitter} from 'events'
+import {Pointers} from './pointers.js'
 import expatWasm from './expat.js'
 
 const expat = await expatWasm()
@@ -67,15 +68,17 @@ export class XmlParseError extends Error {
    *
    * @param {number} parser
    */
-  constructor (parser) {
+  constructor(parser) {
+    /* eslint-disable no-use-before-define */
     const code = XmlParser.XML_GetErrorCode(parser)
     const msg = XmlParser.XML_ErrorString(code)
-    super('XML Parse Error: ' + msg)
+    super(`XML Parse Error: "${msg}"`)
     this.code = code
     this.xmlMessage = msg
     this.line = XmlParser.XML_GetCurrentLineNumber(parser)
     this.column = XmlParser.XML_GetCurrentColumnNumber(parser)
     this.byteOffset = XmlParser.XML_GetCurrentByteIndex(parser)
+    /* eslint-enable no-use-before-define */
   }
 }
 
@@ -92,10 +95,12 @@ export class XmlParser extends EventEmitter {
    * Global pointer namespace.
    */
   static #pointers = new Pointers()
+
   /**
    * @type {Record&lt;string,function>}
    */
   static #CB_TYPES = {}
+
   /**
    * @type {Record&lt;string,function>}
    */
@@ -128,7 +133,7 @@ export class XmlParser extends EventEmitter {
       ['StartDoctypeDecl', 4, false],
       ['StartElement', 2, false],
       ['StartNamespaceDecl', 2, true],
-      ['XmlDecl', 3, false]
+      ['XmlDecl', 3, false],
     ]).reduce((events, [s, num, simple]) => {
       const lc = s[0].toLowerCase() + s.slice(1)
       events[lc] = expat.cwrap(
@@ -152,7 +157,7 @@ export class XmlParser extends EventEmitter {
   /**
    * @returns {string} Current expat version number.
    */
-  static XML_ExpatVersion () {
+  static XML_ExpatVersion() {
     return expat.ccall('XML_ExpatVersion', 'string')
   }
 
@@ -163,9 +168,10 @@ export class XmlParser extends EventEmitter {
    * @param {number} parser
    * @param {number} model
    */
-  static XML_FreeContentModel (parser, model) {
+  static XML_FreeContentModel(parser, model) {
     expat.ccall(
-      'XML_FreeContentModel', 'void',
+      'XML_FreeContentModel',
+      'void',
       ['number', 'number'],
       [parser, model]
     )
@@ -174,7 +180,8 @@ export class XmlParser extends EventEmitter {
   /**
    * Encodings that expat supports.
    *
-   * @typedef {undefined|null|"US-ASCII"|"UTF-8"| "UTF-16"| "ISO-8859-1"} XML_Encoding
+   * @typedef { undefined|null|"US-ASCII"|"UTF-8"|"UTF-16"|"ISO-8859-1"
+   * } XML_Encoding
    */
 
   /**
@@ -190,7 +197,7 @@ export class XmlParser extends EventEmitter {
    * @param {XML_Encoding} [encoding]
    * @returns {number} Parser pointer
    */
-  static XML_ParserCreate (encoding) {
+  static XML_ParserCreate(encoding) {
     return expat.ccall('XML_ParserCreate', 'number', ['string'], [encoding])
   }
 
@@ -217,9 +224,10 @@ export class XmlParser extends EventEmitter {
    * @param {number} sep The ASCII number value of the separator character
    * @returns {number} The created parser
    */
-  static XML_ParserCreateNS (encoding, sep) {
+  static XML_ParserCreateNS(encoding, sep) {
     return expat.ccall(
-      'XML_ParserCreateNS', 'number',
+      'XML_ParserCreateNS',
+      'number',
       ['string', 'number'],
       [encoding, sep]
     )
@@ -231,7 +239,7 @@ export class XmlParser extends EventEmitter {
    *
    * @param {number} parser
    */
-  static XML_ParserFree (parser) {
+  static XML_ParserFree(parser) {
     expat.ccall('XML_ParserFree', 'void', ['number'], [parser])
   }
 
@@ -252,9 +260,10 @@ export class XmlParser extends EventEmitter {
    * @param {number} isFinal
    * @returns {number} ERROR=0, OK=1, SUSPENDED=2
    */
-  static XML_Parse (parser, str, len, isFinal) {
+  static XML_Parse(parser, str, len, isFinal) {
     return expat.ccall(
-      'XML_Parse', 'void',
+      'XML_Parse',
+      'void',
       ['number', 'array', 'number', 'number'],
       [parser, str, len, isFinal]
     )
@@ -277,9 +286,10 @@ export class XmlParser extends EventEmitter {
    * @param {number} parser
    * @param {number} doNst
    */
-  static XML_SetReturnNSTriplet (parser, doNst) {
+  static XML_SetReturnNSTriplet(parser, doNst) {
     expat.ccall(
-      'XML_SetReturnNSTriplet', 'void',
+      'XML_SetReturnNSTriplet',
+      'void',
       ['number', 'number'],
       [parser, doNst]
     )
@@ -297,9 +307,10 @@ export class XmlParser extends EventEmitter {
    * @param {XML_Encoding} encoding
    * @returns {number} Undocumented
    */
-  static XML_ParserReset (parser, encoding) {
+  static XML_ParserReset(parser, encoding) {
     return expat.ccall(
-      'XML_ParserReset', 'number',
+      'XML_ParserReset',
+      'number',
       ['number', 'string'],
       [parser, encoding]
     )
@@ -312,7 +323,7 @@ export class XmlParser extends EventEmitter {
    * @param {number} parser
    * @returns {number} Error code
    */
-  static XML_GetErrorCode (parser) {
+  static XML_GetErrorCode(parser) {
     return expat.ccall('XML_GetErrorCode', 'number', ['number'], [parser])
   }
 
@@ -322,7 +333,7 @@ export class XmlParser extends EventEmitter {
    * @param {number} code
    * @returns {string} Error description in English.
    */
-  static XML_ErrorString (code) {
+  static XML_ErrorString(code) {
     return expat.ccall('XML_ErrorString', 'string', ['number'], [code])
   }
 
@@ -346,7 +357,7 @@ export class XmlParser extends EventEmitter {
    * @param {number} parser
    * @returns {number} 0 on error, or line number.
    */
-  static XML_GetCurrentLineNumber (parser) {
+  static XML_GetCurrentLineNumber(parser) {
     return expat.ccall('XML_GetCurrentLineNumber', 'number', ['number'], [parser])
   }
 
@@ -370,7 +381,7 @@ export class XmlParser extends EventEmitter {
    * @param {number} parser
    * @returns {number} 0 on error, or column number.
    */
-  static XML_GetCurrentColumnNumber (parser) {
+  static XML_GetCurrentColumnNumber(parser) {
     return expat.ccall('XML_GetCurrentColumnNumber', 'number', ['number'], [parser])
   }
 
@@ -394,7 +405,7 @@ export class XmlParser extends EventEmitter {
    * @param {number} parser
    * @returns {number} -1 on error, or byte offset.
    */
-  static XML_GetCurrentByteIndex (parser) {
+  static XML_GetCurrentByteIndex(parser) {
     return expat.ccall('XML_GetCurrentByteIndex', 'number', ['number'], [parser])
   }
 
@@ -404,9 +415,10 @@ export class XmlParser extends EventEmitter {
    * @param {number} parser
    * @param {number} userData
    */
-  static XML_SetUserData (parser, userData) {
+  static XML_SetUserData(parser, userData) {
     expat.ccall(
-      'XML_SetUserData', 'void',
+      'XML_SetUserData',
+      'void',
       ['number', 'number'],
       [parser, userData]
     )
@@ -421,7 +433,7 @@ export class XmlParser extends EventEmitter {
    *   XmlParser.NO_NAMESPACES to get Expat's old, broken namespace
    *   non-implementation via XmlParserCreate instead of XmlParserCreateNS.
    */
-  constructor (encoding, separator = '|') {
+  constructor(encoding, separator = '|') {
     super()
 
     /**
@@ -439,19 +451,16 @@ export class XmlParser extends EventEmitter {
         if (separator === XmlParser.NO_NAMESPACES) {
           return XmlParser.XML_ParserCreate(encoding)
         }
-      } else {
-        const p = XmlParser.XML_ParserCreateNS(encoding, separator.charCodeAt(0))
-        XmlParser.XML_SetReturnNSTriplet(p, 1)
-        return p
+        return undefined
       }
+      const p = XmlParser.XML_ParserCreateNS(encoding, separator.charCodeAt(0))
+      XmlParser.XML_SetReturnNSTriplet(p, 1)
+      return p
     })()
 
-    // Assert, so that TS is happy
-    /* c8 ignore start */
     if (!this.parser) {
       throw new Error('Unknown separator symbol')
     }
-    /* c8 ignore stop */
 
     /**
      * @type {number|undefined}
@@ -470,18 +479,18 @@ export class XmlParser extends EventEmitter {
      * @type {BufferEncoding}
      * @private
      */
-    this.encoding = !encoding
-      ? 'utf8'
-      : /** @type {Record&lt;string,BufferEncoding>} */ ({
-          'US-ASCII': 'ascii',
-          'UTF-8': 'utf8',
-          'UTF-16': 'utf16le',
-          'ISO-8859-1': 'latin1'
-        })[encoding] || 'utf8'
+    this.encoding = encoding ?
+    /** @type {Record&lt;string,BufferEncoding>} */ ({
+        'US-ASCII': 'ascii',
+        'UTF-8': 'utf8',
+        'UTF-16': 'utf16le',
+        'ISO-8859-1': 'latin1',
+      })[encoding] || 'utf8' :
+      'utf8'
     this._registerHandlers()
   }
 
-  _registerHandlers () {
+  _registerHandlers() {
     for (const [k, setEventHandler] of Object.entries(XmlParser.#EVENTS)) {
       setEventHandler(this.parser, XmlParser.#CB_TYPES[k])
     }
@@ -500,7 +509,7 @@ export class XmlParser extends EventEmitter {
    * @param {...any} args The parameters for the event
    * @returns {boolean} True if there were listeners
    */
-  emit (eventName, ...args) {
+  emit(eventName, ...args) {
     const r = super.emit(eventName, ...args)
     super.emit('*', eventName, ...args)
     return r
@@ -523,7 +532,7 @@ export class XmlParser extends EventEmitter {
    * @returns {boolean}
    * @private
    */
-  _startElement (event, name, attr) {
+  _startElement(event, name, attr) {
     /** @type {Record&lt;string,string>} */
     const attribs = {}
     // Name/value pairs, starting at attr, until we get to a null.
@@ -541,7 +550,7 @@ export class XmlParser extends EventEmitter {
    * @returns {boolean}
    * @private
    */
-  _characterData (event, txt, len) {
+  _characterData(event, txt, len) {
     return this.emit(event, expat.UTF8ToString(txt, len))
   }
 
@@ -563,11 +572,11 @@ export class XmlParser extends EventEmitter {
    * @returns {boolean}
    * @private
    */
-  _xmlDecl (event, version, encoding, standalone) {
+  _xmlDecl(event, version, encoding, standalone) {
     return this.emit(event,
       expat.UTF8ToString(version),
       expat.UTF8ToString(encoding),
-      !!standalone)
+      Boolean(standalone))
   }
 
   /**
@@ -589,12 +598,13 @@ export class XmlParser extends EventEmitter {
    * @returns {boolean}
    * @private
    */
-  _startDoctypeDecl (event, doctypeName, sysid, pubid, hasInternalSubset) {
+  // eslint-disable-next-line max-params
+  _startDoctypeDecl(event, doctypeName, sysid, pubid, hasInternalSubset) {
     return this.emit(event,
       expat.UTF8ToString(doctypeName),
       expat.UTF8ToString(sysid),
       expat.UTF8ToString(pubid),
-      !!hasInternalSubset)
+      Boolean(hasInternalSubset))
   }
 
   /**
@@ -612,9 +622,10 @@ export class XmlParser extends EventEmitter {
    * @param {Model} model
    * @private
    */
-  _unpackModel (offset, model = {}) {
+  _unpackModel(offset, model = {}) {
     const a = offset / 4 // Offset in U32's
-    const [type, quant, name, numchildren, children] = expat.HEAPU32.slice(a, a + 5)
+    const [type, quant, name, numchildren, children] =
+      expat.HEAPU32.slice(a, a + 5)
     model.type = type
     model.quant = quant
     if (name) {
@@ -643,10 +654,10 @@ export class XmlParser extends EventEmitter {
    * @returns {boolean}
    * @private
    */
-  _elementDecl (event, nm, model) {
+  _elementDecl(event, nm, model) {
     try {
       const name = expat.UTF8ToString(nm)
-      const m = this._unpackModel(model, { name })
+      const m = this._unpackModel(model, {name})
       return this.emit(event, name, m)
     } finally {
       if (this.parser) {
@@ -676,14 +687,16 @@ export class XmlParser extends EventEmitter {
    * @returns {boolean}
    * @private
    */
-  _attlistDecl (event, elname, attname, attType, dflt, isrequired) {
+  // eslint-disable-next-line max-params
+  _attlistDecl(event, elname, attname, attType, dflt, isrequired) {
     return this.emit(
       event,
       expat.UTF8ToString(elname),
       expat.UTF8ToString(attname),
       expat.UTF8ToString(attType),
       expat.UTF8ToString(dflt),
-      !!isrequired)
+      Boolean(isrequired)
+    )
   }
 
   /**
@@ -711,7 +724,8 @@ export class XmlParser extends EventEmitter {
    * @param {number} notationName
    * @private
    */
-  _entityDecl (
+  // eslint-disable-next-line max-params
+  _entityDecl(
     event,
     entityName,
     isParameterEntity,
@@ -725,12 +739,13 @@ export class XmlParser extends EventEmitter {
     return this.emit(
       event,
       expat.UTF8ToString(entityName),
-      !!isParameterEntity,
+      Boolean(isParameterEntity),
       value ? expat.UTF8ToString(value, valueLength) : null,
       expat.UTF8ToString(base),
       expat.UTF8ToString(systemId),
       expat.UTF8ToString(publicId),
-      expat.UTF8ToString(notationName))
+      expat.UTF8ToString(notationName)
+    )
   }
 
   /**
@@ -814,7 +829,7 @@ export class XmlParser extends EventEmitter {
    * @returns {boolean} True if event fired
    * @private
    */
-  _simpleEvent (event, ...args) {
+  _simpleEvent(event, ...args) {
     return this.emit(event, ...args.map(s => expat.UTF8ToString(s)))
   }
 
@@ -844,7 +859,7 @@ export class XmlParser extends EventEmitter {
    * @fires XmlParser#entityDecl
    * @fires XmlParser#xmlDecl
    */
-  parse (chunk, final = 1) {
+  parse(chunk, final = 1) {
     if (!this.parser) {
       throw new Error('Invalid state')
     }
@@ -855,7 +870,9 @@ export class XmlParser extends EventEmitter {
     const len = chunk.length
     if (Buffer.isBuffer(chunk)) {
       chunk = new Uint8Array(chunk, 0, len)
-    } else if (!(chunk instanceof Uint8Array || chunk instanceof Uint8ClampedArray)) {
+    } else if (!(
+      chunk instanceof Uint8Array || chunk instanceof Uint8ClampedArray
+    )) {
       throw new Error('Expected chunk to be a string, Buffer, Uint8Array, or Uint8ClampedArray')
     }
 
@@ -873,7 +890,7 @@ export class XmlParser extends EventEmitter {
   /**
    * Reset the parser state, so that a new document can be parsed.
    */
-  reset () {
+  reset() {
     if (!this.parser) {
       throw new Error('Invalid state')
     }
@@ -895,20 +912,20 @@ export class XmlParser extends EventEmitter {
    * @param {string} name - a EVENTS name, or a URI+local+prefix triple
    * @returns {Pieces} pieces - the pieces of the name
    */
-  triple (name) {
+  triple(name) {
     if (typeof this.separator !== 'string') {
       throw new Error('Invalid separator')
     }
     const [ns, local, prefix] = name.split(this.separator)
     if (!local) {
       return {
-        local: ns
+        local: ns,
       }
     }
     if (!prefix) {
-      return { ns, local }
+      return {ns, local}
     }
-    return { ns, local, prefix }
+    return {ns, local, prefix}
   }
 
   /**
@@ -917,7 +934,7 @@ export class XmlParser extends EventEmitter {
    *
    * @memberOf XmlParser
    */
-  destroy () {
+  destroy() {
     if (this.parser) {
       XmlParser.XML_ParserFree(this.parser)
       delete this.parser
