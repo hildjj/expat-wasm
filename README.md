@@ -3,9 +3,9 @@
 An XML parser based on [expat](https://github.com/libexpat/libexpat).
 
 The approach taken here was to compile to WASM with
-[emscripten](https://kripken.github.io/emscripten-site/index.html),
-and ship the WASM binary in the NPM package.  This means you get a real,
-battle-tested XML parser, with 0 runtime dependencies.
+[emscripten](https://emscripten.org/), and ship the WASM binary in the NPM
+package.  This means you get a real, battle-tested XML parser, with 0 runtime
+dependencies.
 
 To install:
 
@@ -13,12 +13,14 @@ To install:
 
 To use:
 
-    import {XmlParser} = from 'expat-wasm'
+```js
+import {XmlParser} from 'expat-wasm'
 
-    parser = new XmlParser()
-    parser.on('startElement', (name, attributes) => ...)
-    parser.parse('<foo/>')
-    parser.destroy()
+parser = new XmlParser()
+parser.on('startElement', (name, attributes) => ...)
+parser.parse('<foo/>')
+parser.destroy()
+```
 
 There are [docs](https://hildjj.github.io/expat-wasm/).
 
