@@ -7,12 +7,13 @@ DESTWASMJS="${DEST}.wasm.js"
 SED=gsed
 
 emcc \
-  libexpat/expat/lib/.libs/xml*.o \
+  libexpat/expat/lib/xml*.o \
   -o "${DESTJS}" \
-  --pre-js pre.js \
+  --extern-pre-js pre.js \
   -s RESERVED_FUNCTION_POINTERS=30 \
-  -s EXPORTED_RUNTIME_METHODS='["cwrap", "addFunction", "removeFunction", "UTF8ToString"]' \
+  -s EXPORTED_RUNTIME_METHODS='["cwrap", "ccall", "addFunction", "removeFunction", "UTF8ToString"]' \
   -s EXPORTED_FUNCTIONS=@expat_exports.json \
+  -s EXPORT_ES6=1 \
   -s MODULARIZE=1 \
   -s WASM=1 \
   -s NO_EXIT_RUNTIME=1 \
@@ -20,12 +21,6 @@ emcc \
   -s WARN_ON_UNDEFINED_SYMBOLS=1 \
   -s ALLOW_TABLE_GROWTH=1 \
   -flto=full \
+  -s SINGLE_FILE=1 \
   --closure 1 \
   -Os
-
-echo -n 'module.exports = Buffer.from(`' > "${DESTWASMJS}"
-base64 -b 72 -i "${DESTWASM}" >> "${DESTWASMJS}"
-echo "\`, 'base64')" >> "${DESTWASMJS}"
-rm "${DESTWASM}"
-# fs isn't needed and makes webpack fail
-"${SED}" -i -r 's/require\("fs"\)/{}/g' "${DESTJS}"

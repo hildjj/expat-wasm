@@ -1,13 +1,17 @@
-'use strict'
-const test = require('ava')
-const Pointers = require('../lib/pointers')
+import {Pointers} from '../lib/pointers.js'
+import test from 'ava'
 
 class Counted {
-  constructor () {
+  constructor() {
     this.id = Counted.count++
   }
 
-  count (event, extra) {
+  /**
+   * @param {string} event
+   * @param {number} extra
+   * @returns
+   */
+  count(event, extra) {
     return [event, this.id + extra]
   }
 }
@@ -28,12 +32,17 @@ test('add-remove', t => {
   t.is(i1, 1)
   t.is(i2, 2)
   p.remove(i1)
-  t.is(p.pointers.length, 3)
-  t.falsy(p.pointers[1])
+  t.is(p.size, 3)
+  t.falsy(p.get(1))
   t.falsy(p.get(i1))
-  t.is(p.get(i0).id, d.id)
-  t.deepEqual(p.unused, [1])
+  // @ts-ignore
+  t.is(p.get(i0)?.id, d.id)
+  t.deepEqual(p.available, 1)
   t.is(p.add(new Counted()), 1)
+
+  p.remove(1)
+  t.throws(() => p.remove(1))
+  t.throws(() => p.remove(10001))
 })
 
 test('call', t => {

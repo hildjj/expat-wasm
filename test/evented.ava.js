@@ -1,28 +1,36 @@
-'use strict'
-const test = require('ava')
-const XmlParser = require('../lib/index')
+import {Buffer} from 'buffer'
+import XmlParser from '../lib/index.js'
+import test from 'ava'
+
+/** @typedef {[string, ...any]} Event */
 
 class ParseStream {
-  constructor (parser) {
+  /**
+   *
+   * @param {XmlParser} parser
+   */
+  constructor(parser) {
+    /**
+     * @type {Event[]}
+     */
     this.events = []
     this.parser = parser
-    parser.on('*', (event, ...args) => {
+    parser.on('*', /** @param {string} event */ (event, ...args) => {
       this.events.push([event, ...args])
     })
   }
 
-  read () {
+  read() {
     return this.events.shift()
   }
 }
 
-test('version', async t => {
-  t.is(await XmlParser.version(), 'expat_2.5.0')
+test('version', t => {
+  t.is(XmlParser.XML_ExpatVersion(), 'expat_2.5.0')
 })
 
-test('parse', async t => {
-  t.throws(() => new XmlParser())
-  const p = await XmlParser.create()
+test('parse', t => {
+  const p = new XmlParser()
   const ps = new ParseStream(p)
   p.parse(`<?xml version="1.0" standalone="yes"?>
 <?xml-stylesheet href="mystyle.css" type="text/css"?>
@@ -40,9 +48,9 @@ test('parse', async t => {
   <baz xmlns="urn:f" x:c="no">&js;</baz>
 </x:foo>`)
 
-  t.deepEqual(p.triple('foo'), { local: 'foo' })
-  t.deepEqual(p.triple('urn:f|foo|x'), { ns: 'urn:f', local: 'foo', prefix: 'x' })
-  t.deepEqual(p.triple('urn:f|foo'), { ns: 'urn:f', local: 'foo' })
+  t.deepEqual(p.triple('foo'), {local: 'foo'})
+  t.deepEqual(p.triple('urn:f|foo|x'), {ns: 'urn:f', local: 'foo', prefix: 'x'})
+  t.deepEqual(p.triple('urn:f|foo'), {ns: 'urn:f', local: 'foo'})
 
   t.deepEqual(ps.read(), ['xmlDecl', '1.0', '', true])
   t.deepEqual(ps.read(), ['processingInstruction', 'xml-stylesheet', 'href="mystyle.css" type="text/css"'])
@@ -52,7 +60,7 @@ test('parse', async t => {
   t.deepEqual(ps.read(), ['notationDecl', 'jpeg', '', '', 'JPG 1.0'])
   t.deepEqual(ps.read(), ['endDoctypeDecl'])
   t.deepEqual(ps.read(), ['startNamespaceDecl', 'x', 'urn:f'])
-  t.deepEqual(ps.read(), ['startElement', 'urn:f|foo|x', { a: 'b' }])
+  t.deepEqual(ps.read(), ['startElement', 'urn:f|foo|x', {a: 'b'}])
   t.deepEqual(ps.read(), ['characterData', '\n'])
   t.deepEqual(ps.read(), ['characterData', '  '])
   t.deepEqual(ps.read(), ['comment', 'ack'])
@@ -79,7 +87,7 @@ test('parse', async t => {
   t.deepEqual(ps.read(), ['characterData', '\n'])
   t.deepEqual(ps.read(), ['characterData', '  '])
   t.deepEqual(ps.read(), ['startNamespaceDecl', '', 'urn:f'])
-  t.deepEqual(ps.read(), ['startElement', 'urn:f|baz', { 'urn:f|c|x': 'no' }])
+  t.deepEqual(ps.read(), ['startElement', 'urn:f|baz', {'urn:f|c|x': 'no'}])
   t.deepEqual(ps.read(), ['characterData', 'EcmaScript'])
   t.deepEqual(ps.read(), ['endElement', 'urn:f|baz'])
   t.deepEqual(ps.read(), ['endNamespaceDecl', ''])
@@ -91,8 +99,8 @@ test('parse', async t => {
   p.destroy()
 })
 
-test('tdt', async t => {
-  const p = await XmlParser.create()
+test('tdt', t => {
+  const p = new XmlParser()
   const ps = new ParseStream(p)
   p.parse(`<!DOCTYPE TVSCHEDULE [
   <!ELEMENT TVSCHEDULE (CHANNEL+)>
@@ -101,6 +109,7 @@ test('tdt', async t => {
   <!ATTLIST CHANNEL CHAN (t|f) "t">
 ]>
 <TVSCHEDULE><CHANNEL/></TVSCHEDULE>`)
+  p.destroy()
 
   t.deepEqual(ps.events, [
     ['startDoctypeDecl', 'TVSCHEDULE', '', '', true],
@@ -113,65 +122,101 @@ test('tdt', async t => {
           name: 'CHANNEL',
           quant: 3,
           type: 4,
-          children: []
-        }
-      ]
+          children: [],
+        },
+      ],
     }],
     ['elementDecl', 'CHANNEL', {
       name: 'CHANNEL',
       quant: 0,
       type: 3,
-      children: []
+      children: [],
     }],
     ['attlistDecl', 'TVSCHEDULE', 'NAME', 'CDATA', '', true],
     ['attlistDecl', 'CHANNEL', 'CHAN', '(t|f)', 't', false],
     ['endDoctypeDecl'],
     ['startElement', 'TVSCHEDULE', {}],
-    ['startElement', 'CHANNEL', { CHAN: 't' }],
+    ['startElement', 'CHANNEL', {CHAN: 't'}],
     ['endElement', 'CHANNEL'],
-    ['endElement', 'TVSCHEDULE']
+    ['endElement', 'TVSCHEDULE'],
   ])
 })
 
-test('error', async t => {
-  t.throws(() => new XmlParser())
-  t.throws(() => XmlParser._initialize())
-  const p = await XmlParser.create()
+test('error', t => {
+  const p = new XmlParser()
   t.throws(() => p.parse('>>'))
   p.destroy()
+  t.throws(() => p.parse('<foo/>'))
+  t.throws(() => p.reset())
+
+  const q = new XmlParser(null, XmlParser.NO_NAMESPACES)
+  t.throws(() => q.triple('foo|bar|baz'))
+  q.destroy()
 })
 
-test('chunks', async t => {
-  const p = await XmlParser.create()
+test('chunks', t => {
+  const p = new XmlParser()
   const ps = new ParseStream(p)
   p.parse('<fo', 0)
   p.parse('o/>')
   t.deepEqual(ps.events, [
     ['startElement', 'foo', {}],
-    ['endElement', 'foo']
+    ['endElement', 'foo'],
   ])
 })
 
-test('no namespaces', async t => {
-  const p = await XmlParser.create(null, XmlParser.NO_NAMESPACES)
+test('no namespaces', t => {
+  const p = new XmlParser(null, XmlParser.NO_NAMESPACES)
   const ps = new ParseStream(p)
   p.parse(Buffer.from('<foo xmlns='), 0)
+
+  /** @type {Buffer|Uint8ClampedArray|Uint8Array} */
   let chunk = Buffer.from('"urn:bar">')
   chunk = new Uint8Array(chunk, 0, chunk.length)
   p.parse(chunk, 0)
   chunk = Buffer.from('<b:boo xmlns:b="urn:b"/></foo>')
-  chunk = new Uint8Array(chunk, 0, chunk.length)
+  chunk = new Uint8ClampedArray(chunk, 0, chunk.length)
   p.parse(chunk, 1)
   t.deepEqual(ps.events, [
-    ['startElement', 'foo', { xmlns: 'urn:bar' }],
-    ['startElement', 'b:boo', { 'xmlns:b': 'urn:b' }],
+    ['startElement', 'foo', {xmlns: 'urn:bar'}],
+    ['startElement', 'b:boo', {'xmlns:b': 'urn:b'}],
     ['endElement', 'b:boo'],
-    ['endElement', 'foo']
+    ['endElement', 'foo'],
   ])
 })
 
-test('input types', async t => {
-  const p = await XmlParser.create()
+test('input types', t => {
+  const p = new XmlParser()
+  // @ts-ignore
   t.throws(() => p.parse(null))
+  // @ts-ignore
   t.throws(() => p.parse({}))
+})
+
+test('encoding', t => {
+  const p = new XmlParser('UTF-16')
+  const ps = new ParseStream(p)
+  p.parse(Buffer.from('<foo/>', 'utf16le'))
+  t.deepEqual(ps.events, [
+    ['startElement', 'foo', {}],
+    ['endElement', 'foo'],
+  ])
+  p.destroy()
+  const q = new XmlParser('unknown')
+  t.is(q.encoding, 'utf8')
+  q.destroy()
+})
+
+test('separator', t => {
+  t.throws(() => new XmlParser(null, Symbol('wrong')))
+  const p = new XmlParser(null, ',')
+  const ps = new ParseStream(p)
+  p.parse('<f:g xmlns:f="foo"/>')
+  t.deepEqual(ps.events, [
+    ['startNamespaceDecl', 'f', 'foo'],
+    ['startElement', 'foo,g,f', {}],
+    ['endElement', 'foo,g,f'],
+    ['endNamespaceDecl', 'f'],
+  ])
+  p.destroy()
 })

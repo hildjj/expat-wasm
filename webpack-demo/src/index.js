@@ -1,16 +1,28 @@
 import XmlParser from 'expat-wasm'
 
-async function component () {
-  console.log(XmlParser)
+const input = document.querySelector('#input')
+const output = document.querySelector('#output')
+const parser = new XmlParser()
+parser.on('*', (event, ...args) => {
+  const element = document.createElement('div')
+  element.innerHTML = `${event}: ${args.map(a => JSON.stringify(a)).join(', ')}`
 
-  const parser = await XmlParser.create()
-  parser.on('startElement', e => {
-    console.log(e)
-    let element = document.createElement('div')
-    element.innerHTML = e
-    document.body.appendChild(element)
-  })
-  parser.parse('<foo><bar/></foo>')
+  output.appendChild(element)
+})
+
+function process() {
+  output.innerHTML = ''
+  try {
+    parser.parse(input.value, 1)
+  } catch (e) {
+    output.innerText = `\
+Message: ${e.xmlMessage}
+Code: ${e.code}
+Line: ${e.line}
+Column: ${e.column}
+Byte Offset: ${e.byteOffset}
+    `
+  }
 }
-
-component().then(console.log)
+input.addEventListener('input', process)
+process()

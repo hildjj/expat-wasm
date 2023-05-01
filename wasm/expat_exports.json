@@ -2,6 +2,7 @@
   "_XML_ErrorString",
   "_XML_ExpatVersion",
   "_XML_FreeContentModel",
+  "_XML_GetCurrentByteIndex",
   "_XML_GetCurrentColumnNumber",
   "_XML_GetCurrentLineNumber",
   "_XML_GetErrorCode",
@@ -19,6 +20,7 @@
   "_XML_SetEndDoctypeDeclHandler",
   "_XML_SetEndElementHandler",
   "_XML_SetEndNamespaceDeclHandler",
+  "_XML_SetEntityDeclHandler",
   "_XML_SetNotationDeclHandler",
   "_XML_SetParamEntityParsing",
   "_XML_SetProcessingInstructionHandler",
@@ -27,7 +29,6 @@
   "_XML_SetStartDoctypeDeclHandler",
   "_XML_SetStartElementHandler",
   "_XML_SetStartNamespaceDeclHandler",
-  "_XML_SetEntityDeclHandler",
   "_XML_SetUserData",
   "_XML_SetXmlDeclHandler"
 ]
