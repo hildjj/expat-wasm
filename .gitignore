@@ -1,6 +1,5 @@
 node_modules/
-lib/libexpat/
 npm-debug.log
-wasm/
+wasm/libexpat/
 coverage/
 .nyc_output/

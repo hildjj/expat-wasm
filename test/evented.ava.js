@@ -1,6 +1,12 @@
 import {Buffer} from 'buffer'
 import XmlParser from '../lib/index.js'
+import fs from 'fs/promises'
+import path from 'path'
 import test from 'ava'
+import url from 'url'
+
+const __filename = url.fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
 
 /** @typedef {[string, ...any]} Event */
 
@@ -51,50 +57,7 @@ test('parse', t => {
   t.deepEqual(p.triple('foo'), {local: 'foo'})
   t.deepEqual(p.triple('urn:f|foo|x'), {ns: 'urn:f', local: 'foo', prefix: 'x'})
   t.deepEqual(p.triple('urn:f|foo'), {ns: 'urn:f', local: 'foo'})
-
-  t.deepEqual(ps.read(), ['xmlDecl', '1.0', '', true])
-  t.deepEqual(ps.read(), ['processingInstruction', 'xml-stylesheet', 'href="mystyle.css" type="text/css"'])
-  t.deepEqual(ps.read(), ['startDoctypeDecl', 'author', '', '', true])
-  t.deepEqual(ps.read(), ['entityDecl', 'js', false, 'EcmaScript', '', '', '', ''])
-  t.deepEqual(ps.read(), ['entityDecl', 'logo', false, null, '', 'images/logo.gif', '', 'gif'])
-  t.deepEqual(ps.read(), ['notationDecl', 'jpeg', '', '', 'JPG 1.0'])
-  t.deepEqual(ps.read(), ['endDoctypeDecl'])
-  t.deepEqual(ps.read(), ['startNamespaceDecl', 'x', 'urn:f'])
-  t.deepEqual(ps.read(), ['startElement', 'urn:f|foo|x', {a: 'b'}])
-  t.deepEqual(ps.read(), ['characterData', '\n'])
-  t.deepEqual(ps.read(), ['characterData', '  '])
-  t.deepEqual(ps.read(), ['comment', 'ack'])
-  t.deepEqual(ps.read(), ['characterData', '\n'])
-  t.deepEqual(ps.read(), ['characterData', '  '])
-  t.deepEqual(ps.read(), ['startElement', 'a', {}])
-  t.deepEqual(ps.read(), ['characterData', 'bar'])
-  t.deepEqual(ps.read(), ['endElement', 'a'])
-  t.deepEqual(ps.read(), ['characterData', '\n'])
-  t.deepEqual(ps.read(), ['characterData', '  '])
-  t.deepEqual(ps.read(), ['startElement', 'b', {}])
-  t.deepEqual(ps.read(), ['endElement', 'b'])
-  t.deepEqual(ps.read(), ['characterData', '\n'])
-  t.deepEqual(ps.read(), ['characterData', '  '])
-  t.deepEqual(ps.read(), ['startElement', 'boo', {}])
-  t.deepEqual(ps.read(), ['endElement', 'boo'])
-  t.deepEqual(ps.read(), ['characterData', '\n'])
-  t.deepEqual(ps.read(), ['characterData', '  '])
-  t.deepEqual(ps.read(), ['startElement', 'coo', {}])
-  t.deepEqual(ps.read(), ['startCdataSection'])
-  t.deepEqual(ps.read(), ['characterData', '< & >'])
-  t.deepEqual(ps.read(), ['endCdataSection'])
-  t.deepEqual(ps.read(), ['endElement', 'coo'])
-  t.deepEqual(ps.read(), ['characterData', '\n'])
-  t.deepEqual(ps.read(), ['characterData', '  '])
-  t.deepEqual(ps.read(), ['startNamespaceDecl', '', 'urn:f'])
-  t.deepEqual(ps.read(), ['startElement', 'urn:f|baz', {'urn:f|c|x': 'no'}])
-  t.deepEqual(ps.read(), ['characterData', 'EcmaScript'])
-  t.deepEqual(ps.read(), ['endElement', 'urn:f|baz'])
-  t.deepEqual(ps.read(), ['endNamespaceDecl', ''])
-  t.deepEqual(ps.read(), ['characterData', '\n'])
-  t.deepEqual(ps.read(), ['endElement', 'urn:f|foo|x'])
-  t.deepEqual(ps.read(), ['endNamespaceDecl', 'x'])
-  t.deepEqual(ps.read(), undefined)
+  t.snapshot(ps.events)
 
   p.destroy()
 })
@@ -111,39 +74,13 @@ test('tdt', t => {
 <TVSCHEDULE><CHANNEL/></TVSCHEDULE>`)
   p.destroy()
 
-  t.deepEqual(ps.events, [
-    ['startDoctypeDecl', 'TVSCHEDULE', '', '', true],
-    ['elementDecl', 'TVSCHEDULE', {
-      name: 'TVSCHEDULE',
-      quant: 0,
-      type: 6,
-      children: [
-        {
-          name: 'CHANNEL',
-          quant: 3,
-          type: 4,
-          children: [],
-        },
-      ],
-    }],
-    ['elementDecl', 'CHANNEL', {
-      name: 'CHANNEL',
-      quant: 0,
-      type: 3,
-      children: [],
-    }],
-    ['attlistDecl', 'TVSCHEDULE', 'NAME', 'CDATA', '', true],
-    ['attlistDecl', 'CHANNEL', 'CHAN', '(t|f)', 't', false],
-    ['endDoctypeDecl'],
-    ['startElement', 'TVSCHEDULE', {}],
-    ['startElement', 'CHANNEL', {CHAN: 't'}],
-    ['endElement', 'CHANNEL'],
-    ['endElement', 'TVSCHEDULE'],
-  ])
+  t.snapshot(ps.events)
 })
 
 test('error', t => {
-  const p = new XmlParser()
+  const p = new XmlParser({
+    base: 'file:///fixtures/external.xml',
+  })
   t.throws(() => p.parse('>>'))
   p.destroy()
   t.throws(() => p.parse('<foo/>'))
@@ -219,4 +156,93 @@ test('separator', t => {
     ['endNamespaceDecl', 'f'],
   ])
   p.destroy()
+})
+
+test('base', async t => {
+  const basePath = path.join(__dirname, 'fixtures', 'external.xml')
+  const external = await fs.readFile(basePath)
+  const address = await fs.readFile(path.join(__dirname, 'fixtures', 'address.dtd'))
+
+  // Fake up some URLs so that the real fully-qualified pathname doesn't
+  // end up in the snapshot
+  let p = new XmlParser({
+    base: 'file:///fixtures/external.xml',
+    systemEntity(base, sysId, pubId) {
+      t.is(sysId, 'address.dtd')
+      return {
+        base: new URL(sysId, base).toString(),
+        data: address,
+      }
+    },
+  })
+  let ps = new ParseStream(p)
+  p.parse(external)
+
+  p.destroy()
+  t.snapshot(ps.events)
+
+  t.throws(() => new XmlParser({base: {foo: 1}}))
+
+  p = new XmlParser({
+    expandInternalEntities: false,
+  })
+  ps = new ParseStream(p)
+  p.parse(external)
+  p.destroy()
+  t.snapshot(ps.events)
+
+  p = new XmlParser({systemEntity: 1})
+  ps = new ParseStream(p)
+  p.parse(external)
+  p.destroy()
+  t.snapshot(ps.events)
+
+  p = new XmlParser({systemEntity() {
+    // Dummy
+  }})
+  const {parser} = p
+  p.on('comment', () => (p.parser = null))
+  t.throws(() => p.parse(external))
+  p.parser = parser
+  p.destroy()
+
+  p = new XmlParser({systemEntity() {
+    throw new Error('Intentional error')
+  }})
+  let er = null
+  p.on('error', e => (er = e))
+  t.throws(() => p.parse(external))
+  p.destroy()
+  t.truthy(er)
+
+  const badPath = path.join(__dirname, 'fixtures', 'badExternal.xml')
+  const bad = await fs.readFile(badPath)
+  const badDTD = await fs.readFile(path.join(__dirname, 'fixtures', 'bad.dtd'))
+
+  const q = new XmlParser({
+    base: 'file:///fixtures/bad.xml',
+    systemEntity(base, sysId, pubId) {
+      t.is(sysId, 'bad.dtd')
+      return {
+        base: new URL(sysId, base).toString(),
+        data: badDTD,
+      }
+    },
+  })
+  t.throws(() => q.parse(bad))
+  q.destroy()
+})
+
+test('stop parser', t => {
+  const p = new XmlParser()
+  const ps = new ParseStream(p)
+  p.on('startElement', () => p.stop())
+  t.throws(() => p.parse('<foo><bar/></foo>'))
+  p.destroy()
+  t.snapshot(ps.events)
+  t.throws(() => p.stop())
+
+  const q = new XmlParser()
+  q.stop()
+  t.throws(() => q.stop())
 })

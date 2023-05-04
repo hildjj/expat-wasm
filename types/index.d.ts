@@ -14,14 +14,28 @@ export class XmlParseError extends Error {
      * Create an error from the current parser state.
      *
      * @param {number} parser
+     * @param {string} [extra] Extra string to add to message
      */
-    constructor(parser: number);
+    constructor(parser: number, extra?: string | undefined);
     code: number;
     xmlMessage: string;
     line: number;
     column: number;
     byteOffset: number;
+    base: string | undefined;
 }
+/**
+ * @typedef {object} EntityInfo
+ * @prop {string} base
+ * @prop {string|Buffer|Uint8Array|Uint8ClampedArray} data
+ */
+/**
+ * @callback ReadEntity
+ * @param {string} base
+ * @param {string} systemId
+ * @param {string} [publicId]
+ * @returns {EntityInfo}
+ */
 /**
  * An evented parser based on a WASM-compiled version of expat.
  * NOTE: Please make sure to call {@link XmlParser#destroy destroy()}
@@ -31,6 +45,7 @@ export class XmlParseError extends Error {
  * @extends {EventEmitter}
  */
 export class XmlParser extends EventEmitter {
+    static CHUNK_SIZE: number;
     /**
      * Global pointer namespace.
      */
@@ -43,6 +58,19 @@ export class XmlParser extends EventEmitter {
      * @type {Record<string,function>}
      */
     static "__#2@#EVENTS": Record<string, Function>;
+    /**
+     * ExternalEntityRef is special, because it takes the parser as the first
+     * param.  This is so that external entities can be parsed recursively.
+     *
+     * @param {number} parser
+     * @param {number} context
+     * @param {number} base
+     * @param {number} sysid
+     * @param {number} pubid
+     * @returns {number}
+     * @private
+     */
+    private static _externalEntityRefTrampoline;
     /**
      * Use as the separator to treat namespaces in legacy mode.
      */
@@ -104,6 +132,27 @@ export class XmlParser extends EventEmitter {
      */
     static XML_ParserCreateNS(encoding: "US-ASCII" | "UTF-8" | "UTF-16" | "ISO-8859-1" | null | undefined, sep: number): number;
     /**
+     * Creates an XML_Parser object that can parse an external general entity;
+     * context is a '\0'-terminated string specifying the parse context;
+     * encoding is a '\0'-terminated string giving the name of the externally
+     * specified encoding, or NULL if there is no externally specified encoding.
+     * The context string consists of a sequence of tokens separated by
+     * formfeeds (\f); a token consisting of a name specifies that the general
+     * entity of the name is open; a token of the form prefix=uri specifies the
+     * namespace for a particular prefix; a token of the form =uri specifies the
+     * default namespace.  This can be called at any point after the first call
+     * to an ExternalEntityRefHandler so longer as the parser has not yet been
+     * freed.  The new parser is completely independent and may safely be used
+     * in a separate thread.  The handlers and userData are initialized from the
+     * parser argument.  Returns NULL if out of memory. Otherwise returns a new
+     * XML_Parser object.
+     *
+     * @param {number} parser
+     * @param {number} context
+     * @param {XML_Encoding} encoding
+     */
+    static XML_ExternalEntityParserCreate(parser: number, context: number, encoding: "US-ASCII" | "UTF-8" | "UTF-16" | "ISO-8859-1" | null | undefined): any;
+    /**
      * Free memory used by the parser. Your application is responsible for
      * freeing any memory associated with user data.
      *
@@ -122,12 +171,27 @@ export class XmlParser extends EventEmitter {
      * it returns XML_STATUS_OK value.
      *
      * @param {number} parser
-     * @param {Uint8Array|Uint8ClampedArray} str
-     * @param {number} len
+     * @param {string|Buffer|Uint8Array|Uint8ClampedArray} str
      * @param {number} isFinal
+     * @param {BufferEncoding} encoding
      * @returns {number} ERROR=0, OK=1, SUSPENDED=2
      */
-    static XML_Parse(parser: number, str: Uint8Array | Uint8ClampedArray, len: number, isFinal: number): number;
+    static XML_Parse(parser: number, str: string | Buffer | Uint8Array | Uint8ClampedArray, isFinal: number, encoding: BufferEncoding): number;
+    /**
+     * Set the base URI for including external entities.
+     *
+     * @param {number} parser
+     * @param {string} base
+     * @returns {number} 1 on success, 0 on error
+     */
+    static XML_SetBase(parser: number, base: string): number;
+    /**
+     * Get the base URI from a parser.
+     *
+     * @param {number} parser
+     * @returns {string}
+     */
+    static XML_GetBase(parser: number): string;
     /**
      * This function only has an effect when using a parser created with
      * XML_ParserCreateNS, i.e. when namespace processing is in effect. The
@@ -238,6 +302,34 @@ export class XmlParser extends EventEmitter {
      */
     static XML_GetCurrentByteIndex(parser: number): number;
     /**
+     * Controls parsing of parameter entities (including the external DTD
+     * subset). If parsing of parameter entities is enabled, then references to
+     * external parameter entities (including the external DTD subset) will be
+     * passed to the handler set with XML_SetExternalEntityRefHandler.  The
+     * context passed will be 0.  Unlike external general entities, external
+     * parameter entities can only be parsed synchronously.  If the external
+     * parameter entity is to be parsed, it must be parsed during the call to
+     * the external entity ref handler: the complete sequence of
+     * XML_ExternalEntityParserCreate, XML_Parse/XML_ParseBuffer and
+     * XML_ParserFree calls must be made during this call.  After
+     * XML_ExternalEntityParserCreate has been called to create the parser for
+     * the external parameter entity (context must be 0 for this call), it is
+     * illegal to make any calls on the old parser until XML_ParserFree has been
+     * called on the newly created parser. If the library has been compiled
+     * without support for parameter entity parsing (ie without XML_DTD being
+     * defined), then XML_SetParamEntityParsing will return 0 if parsing of
+     * parameter entities is requested; otherwise it will return non-zero. Note:
+     * If XML_SetParamEntityParsing is called after XML_Parse or
+     * XML_ParseBuffer, then it has no effect and will always return 0. Note: If
+     * parser == NULL, the function will do nothing and return 0.
+     *
+     * @param {number} parser
+     * @param {number} parsing NEVER=0, UNLESS_STANDALONE=1, ALWAYS=2.  If you
+     *   want to turn this on, you probably want 1.
+     * @returns {number} 0 on failure
+     */
+    static XML_SetParamEntityParsing(parser: number, parsing: number): number;
+    /**
      * This value is passed as the userData argument to callbacks.
      *
      * @param {number} parser
@@ -245,15 +337,102 @@ export class XmlParser extends EventEmitter {
      */
     static XML_SetUserData(parser: number, userData: number): void;
     /**
-     * Create a parser instance.
+     * The user data is the first four bytes of the parser struct.
+     * #define XML_GetUserData(parser) (*(void **)(parser))
      *
-     * @param {XML_Encoding} [encoding] null will do content sniffing.
-     * @param {string|XmlParser.NO_NAMESPACES} [separator='|'] the separator
+     * @param {number} parser
+     * @returns {number} User data
+     */
+    static XML_GetUserData(parser: number): number;
+    /**
+     * Stop the current parser.
+     *
+     * @param {number} parser
+     * @param {number} [resumable=0] 1 if resumable
+     * @returns {number} 0 on fail, 1 on success
+     */
+    static XML_StopParser(parser: number, resumable?: number | undefined): number;
+    /**
+     * @typedef {object} ParserOptions
+     * @prop {XML_Encoding} [encoding] null will do content
+     *   sniffing.
+     * @prop {string|XmlParser.NO_NAMESPACES} [separator='|'] the separator
      *   for namespace URI and element/attribute name.  Use
      *   XmlParser.NO_NAMESPACES to get Expat's old, broken namespace
      *   non-implementation via XmlParserCreate instead of XmlParserCreateNS.
+     * @prop {boolean} [expandInternalEntities] expand internal entities
+     * @prop {ReadEntity|null} [systemEntity] expand external entities using this
+     *   callback
+     * @prop {string|null} [base] Base URI for inclusions
      */
-    constructor(encoding?: "US-ASCII" | "UTF-8" | "UTF-16" | "ISO-8859-1" | null | undefined, separator?: string | symbol | undefined);
+    /**
+     * Create a parser instance.
+     *
+     * @param {XML_Encoding|ParserOptions} [encoding] null will do content
+     *   sniffing. If an object, extended parser options, and the second
+     *   parameter is ignored.
+     * @param {string|XmlParser.NO_NAMESPACES} [separator='|'] the separator for
+     *   namespace URI and element/attribute name.  Use XmlParser.NO_NAMESPACES
+     *   to get Expat's old, broken namespace non-implementation via
+     *   XmlParserCreate instead of XmlParserCreateNS.
+     */
+    constructor(encoding?: ("US-ASCII" | "UTF-8" | "UTF-16" | "ISO-8859-1" | null | undefined) | {
+        /**
+         * null will do content
+         * sniffing.
+         */
+        encoding?: "US-ASCII" | "UTF-8" | "UTF-16" | "ISO-8859-1" | null | undefined;
+        /**
+         * the separator
+         * for namespace URI and element/attribute name.  Use
+         * XmlParser.NO_NAMESPACES to get Expat's old, broken namespace
+         * non-implementation via XmlParserCreate instead of XmlParserCreateNS.
+         */
+        separator?: string | symbol | undefined;
+        /**
+         * expand internal entities
+         */
+        expandInternalEntities?: boolean | undefined;
+        /**
+         * expand external entities using this
+         * callback
+         */
+        systemEntity?: ReadEntity | null | undefined;
+        /**
+         * Base URI for inclusions
+         */
+        base?: string | null | undefined;
+    }, separator?: string | symbol | undefined);
+    /**
+     * @type {Required<ParserOptions>}
+     */
+    opts: Required<{
+        /**
+         * null will do content
+         * sniffing.
+         */
+        encoding?: "US-ASCII" | "UTF-8" | "UTF-16" | "ISO-8859-1" | null | undefined;
+        /**
+         * the separator
+         * for namespace URI and element/attribute name.  Use
+         * XmlParser.NO_NAMESPACES to get Expat's old, broken namespace
+         * non-implementation via XmlParserCreate instead of XmlParserCreateNS.
+         */
+        separator?: string | symbol | undefined;
+        /**
+         * expand internal entities
+         */
+        expandInternalEntities?: boolean | undefined;
+        /**
+         * expand external entities using this
+         * callback
+         */
+        systemEntity?: ReadEntity | null | undefined;
+        /**
+         * Base URI for inclusions
+         */
+        base?: string | null | undefined;
+    }>;
     /**
      * @type {string|XmlParser.NO_NAMESPACES}
      * @private
@@ -279,7 +458,29 @@ export class XmlParser extends EventEmitter {
      * @private
      */
     private encoding;
-    _registerHandlers(): void;
+    /**
+     * Register all callbacks with the parser, pointing at the existing
+     * prepared functions in #pointers.
+     *
+     * @private
+     */
+    private _registerHandlers;
+    /**
+     * All extra text.  Mostly in the DTD.
+     *
+     * @event XmlParser#default
+     * @param {string} str The extra string
+     */
+    /**
+     * Everything else?  Mostly odd bits of text in the DTD.
+     *
+     * @param {string} event
+     * @param {number} str
+     * @param {number} len
+     * @returns {boolean}
+     * @private
+     */
+    private _default;
     /**
      * Start of an Element.
      *
@@ -419,6 +620,35 @@ export class XmlParser extends EventEmitter {
      */
     private _entityDecl;
     /**
+     * Error while parsing external entity.
+     *
+     * @event XmlParser#error
+     * @param {Error} error The error that was thrown from systemEntity.
+     */
+    /**
+     * Started processing an external entity ref with this base URL.
+     *
+     * @event XmlParser#startBase
+     * @param {string} base Base URL for the new external entity.
+     */
+    /**
+     * Stopped processing an external entity ref
+     *
+     * @event XmlParser#endBase
+     * @param {string} base Base URL for the finished entity
+     */
+    /**
+     * @param {string} event
+     * @param {number} parser
+     * @param {number} context
+     * @param {number} base
+     * @param {number} systemId
+     * @param {number} publicId
+     * @returns {number}
+     * @private
+     */
+    private _externalEntityRef;
+    /**
      * Plain text, or text that has been generated by an entity (e.g.)
      *
      * @event XmlParser#characterData
@@ -497,23 +727,26 @@ export class XmlParser extends EventEmitter {
      * @param {string|Buffer|Uint8Array|Uint8ClampedArray} chunk - Input text
      * @param {number} [final=1] - 0 if not the last or only chunk.
      *
-     * @memberOf XmlParser
      * @throws {XmlParseError}
      * @fires XmlParser#attlistDecl
      * @fires XmlParser#characterData
      * @fires XmlParser#comment
+     * @fires XmlParser#default
      * @fires XmlParser#elementDecl
+     * @fires XmlParser#endBase
      * @fires XmlParser#endCdataSection
      * @fires XmlParser#endDoctypeDecl
      * @fires XmlParser#endElement
      * @fires XmlParser#endNamespaceDecl
+     * @fires XmlParser#entityDecl
+     * @fires XmlParser#error
      * @fires XmlParser#notationDecl
      * @fires XmlParser#processingInstruction
+     * @fires XmlParser#startBase
      * @fires XmlParser#startCdataSection
      * @fires XmlParser#startDoctypeDecl
      * @fires XmlParser#startElement
      * @fires XmlParser#startNamespaceDecl
-     * @fires XmlParser#entityDecl
      * @fires XmlParser#xmlDecl
      */
     parse(chunk: string | Buffer | Uint8Array | Uint8ClampedArray, final?: number | undefined): number;
@@ -548,6 +781,11 @@ export class XmlParser extends EventEmitter {
         prefix?: string | undefined;
     };
     /**
+     * Stop parsing in the middle of a document, usually from an event handler.
+     * @param {number} [resumable=0] 1 for resumable
+     */
+    stop(resumable?: number | undefined): void;
+    /**
      * Clean up after the parser.  REQUIRED, since there is not currently
      * memory management for WASM code.
      *
@@ -556,6 +794,11 @@ export class XmlParser extends EventEmitter {
     destroy(): void;
 }
 export default XmlParser;
+export type EntityInfo = {
+    base: string;
+    data: string | Buffer | Uint8Array | Uint8ClampedArray;
+};
+export type ReadEntity = (base: string, systemId: string, publicId?: string | undefined) => EntityInfo;
 import { EventEmitter } from 'events';
 import { Buffer } from 'buffer';
 import { Pointers } from './pointers.js';
