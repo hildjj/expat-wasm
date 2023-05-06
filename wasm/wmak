@@ -2,9 +2,6 @@
 
 DEST="../lib/expat"
 DESTJS="${DEST}.js"
-DESTWASM="${DEST}.wasm"
-DESTWASMJS="${DEST}.wasm.js"
-SED=gsed
 
 emcc \
   libexpat/expat/lib/xml*.o \

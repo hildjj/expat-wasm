@@ -30,6 +30,7 @@
   "_XML_SetParamEntityParsing",
   "_XML_SetProcessingInstructionHandler",
   "_XML_SetReturnNSTriplet",
+  "_XML_SetSkippedEntityHandler",
   "_XML_SetStartCdataSectionHandler",
   "_XML_SetStartDoctypeDeclHandler",
   "_XML_SetStartElementHandler",
