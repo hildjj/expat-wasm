@@ -482,6 +482,31 @@ export class XmlParser extends EventEmitter {
      */
     private _default;
     /**
+     * Skipped Entities.
+     *
+     * @event XmlParser#skippedEntity
+     * @param {string} entityName
+     * @param {boolean} isParameterEntity
+     */
+    /**
+     * This is called in two situations:
+     * 1) An entity reference is encountered for which no declaration
+     *    has been read *and* this is not an error.
+     * 2) An internal entity reference is read, but not expanded, because
+     *    XML_SetDefaultHandler has been called.
+     * Note: skipped parameter entities in declarations and skipped general
+     *     entities in attribute values cannot be reported, because
+     *     the event would be out of sync with the reporting of the
+     *     declarations or attribute values
+     *
+     * @param {string} event
+     * @param {number} entityName
+     * @param {number} isParameterEntity
+     * @returns {boolean}
+     * @private
+     */
+    private _skippedEntity;
+    /**
      * Start of an Element.
      *
      * @event XmlParser#startElement
@@ -742,6 +767,7 @@ export class XmlParser extends EventEmitter {
      * @fires XmlParser#error
      * @fires XmlParser#notationDecl
      * @fires XmlParser#processingInstruction
+     * @fires XmlParser#skippedEntity
      * @fires XmlParser#startBase
      * @fires XmlParser#startCdataSection
      * @fires XmlParser#startDoctypeDecl
