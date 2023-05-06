@@ -26,14 +26,17 @@ export class XmlParseError extends Error {
 }
 /**
  * @typedef {object} EntityInfo
- * @prop {string} base
- * @prop {string|Buffer|Uint8Array|Uint8ClampedArray} data
+ * @prop {string} base Fully-qualified URL for this entity
+ * @prop {string|Buffer|Uint8Array|Uint8ClampedArray} data Data associated
+ *   with the entity, perhaps read from a file or network.
  */
 /**
+ * Read data associated with an entity.  MUST be synchronous.
+ *
  * @callback ReadEntity
- * @param {string} base
- * @param {string} systemId
- * @param {string} [publicId]
+ * @param {string} base Base URL to compute entity URL from
+ * @param {string} systemId URL pieces relative to base
+ * @param {string} [publicId] For special local processing, like caching.
  * @returns {EntityInfo}
  */
 /**
@@ -482,10 +485,10 @@ export class XmlParser extends EventEmitter {
      */
     private _default;
     /**
-     * Skipped Entities.
+     * Skipped Entities, such as when reading external entities is not enabled.
      *
      * @event XmlParser#skippedEntity
-     * @param {string} entityName
+     * @param {string} entityName Entity name, without the & or ;
      * @param {boolean} isParameterEntity
      */
     /**
@@ -821,9 +824,19 @@ export class XmlParser extends EventEmitter {
 }
 export default XmlParser;
 export type EntityInfo = {
+    /**
+     * Fully-qualified URL for this entity
+     */
     base: string;
+    /**
+     * Data associated
+     * with the entity, perhaps read from a file or network.
+     */
     data: string | Buffer | Uint8Array | Uint8ClampedArray;
 };
+/**
+ * Read data associated with an entity.  MUST be synchronous.
+ */
 export type ReadEntity = (base: string, systemId: string, publicId?: string | undefined) => EntityInfo;
 import { EventEmitter } from 'events';
 import { Buffer } from 'buffer';

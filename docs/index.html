@@ -77,10 +77,27 @@ parser.on('startElement', (name, attributes) => ...)
 parser.parse('&lt;foo/>')
 parser.destroy()
 </code></pre>
+<p>You may enable expansion of external entity references, if you are very
+careful about not allowing access to unwanted files.</p>
+<pre class="prettyprint source lang-js"><code>parser = new XmlParser({
+  systemEntity(base, sysId, pubId) {
+    // Check the new URL to ensure it is &quot;safe&quot;, for your local definition of &quot;safe&quot;.
+    return {
+      base: new URL(sysId, base).toString(),
+      data: Buffer.from('&lt;!ENTITY foo &quot;bar&quot; >'),
+    }
+  },
+})
+</code></pre>
+<p>The <code>systemEntity</code> function MUST be synchronous, due to limitations of expat.
+If you need to read from the network asynchronously, one approach might be to
+call <code>parser.stop()</code>, wait until you've got all of the needed data, then try
+parsing again.</p>
 <p>There are <a href="https://hildjj.github.io/expat-wasm/">docs</a>.</p>
 <p>Requires nodejs 16 or higher, and works in a modern browser using WebPack.  See
 the <a href="https://github.com/hildjj/expat-wasm/tree/master/webpack-demo">webpack-demo</a>
 directory for simple WebPack example.</p>
+<p>Note that expat currently only supports XML 1.0, edition 4.</p>
 <p>See an online demo <a href="https://hildjj.github.io/expat-wasm/webpack-demo">here</a>.</p>
 <p><a href="https://github.com/hildjj/expat-wasm/actions/workflows/node.js.yml"><img src="https://github.com/hildjj/expat-wasm/actions/workflows/node.js.yml/badge.svg" alt="Tests"></a>
 <a href="https://codecov.io/gh/hildjj/expat-wasm"><img src="https://codecov.io/gh/hildjj/expat-wasm/branch/master/graph/badge.svg?token=GQ5IHsZb8S" alt="codecov"></a></p></article>
