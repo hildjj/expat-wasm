@@ -87,7 +87,7 @@ test('error', t => {
   t.throws(() => p.reset())
 
   const q = new XmlParser(null, XmlParser.NO_NAMESPACES)
-  t.throws(() => q.triple('foo|bar|baz'))
+  t.deepEqual(q.triple('foo|bar|baz'), {local: 'foo|bar|baz'})
   q.destroy()
 })
 
