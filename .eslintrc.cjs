@@ -19,8 +19,5 @@ module.exports = {
       capIsNew: false,
       properties: true,
     }],
-    'node/no-missing-import': ['error', {
-      allowModules: ['ava'],
-    }],
   },
-}
+};
