@@ -24,16 +24,16 @@
   "author": "Joe Hildebrand <joe-github@cursive.net>",
   "license": "MIT",
   "devDependencies": {
-    "@cto.af/eslint-config": "1.1.0",
-    "@types/emscripten": "1.39.6",
-    "@types/node": "20.1.2",
-    "ava": "^5.2.0",
-    "c8": "7.13.0",
+    "@cto.af/eslint-config": "3.0.2",
+    "@types/emscripten": "1.39.10",
+    "@types/node": "20.10.5",
+    "ava": "^6.0.1",
+    "c8": "8.0.1",
     "copyfiles": "2.4.1",
-    "docdash": "2.0.1",
-    "eslint": "8.40.0",
+    "docdash": "2.0.2",
+    "eslint": "8.56.0",
     "jsdoc": "^4.0.2",
-    "typescript": "5.0.4"
+    "typescript": "5.3.3"
   },
   "repository": "hildjj/expat-wasm",
   "engines": {

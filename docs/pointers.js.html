@@ -54,19 +54,19 @@ export class Pointers {
   /**
    * @type {object[]}
    */
-  #pointers = []
+  #pointers = [];
 
   /**
    * @type {number[]}
    */
-  #unused = []
+  #unused = [];
 
   get size() {
-    return this.#pointers.length
+    return this.#pointers.length;
   }
 
   get available() {
-    return this.#unused.length
+    return this.#unused.length;
   }
 
   /**
@@ -76,13 +76,13 @@ export class Pointers {
    * @returns {number}
    */
   add(obj) {
-    let index = this.#unused.pop()
+    let index = this.#unused.pop();
     if (index == null) {
-      index = this.#pointers.push(obj) - 1
+      index = this.#pointers.push(obj) - 1;
     } else {
-      this.#pointers[index] = obj
+      this.#pointers[index] = obj;
     }
-    return index
+    return index;
   }
 
   /**
@@ -93,13 +93,13 @@ export class Pointers {
    */
   remove(index) {
     if (this.#unused.indexOf(index) !== -1) {
-      throw new Error('Already deleted')
+      throw new Error('Already deleted');
     }
     if (!this.#pointers[index]) {
-      throw new Error(`Unknown index: ${index}`)
+      throw new Error(`Unknown index: ${index}`);
     }
-    delete this.#pointers[index]
-    this.#unused.push(index)
+    delete this.#pointers[index];
+    this.#unused.push(index);
   }
 
   /**
@@ -109,7 +109,7 @@ export class Pointers {
    * @returns {object|undefined} The object, if it exists, otherwise undefined.
    */
   get(index) {
-    return this.#pointers[index]
+    return this.#pointers[index];
   }
 
   /**
@@ -124,17 +124,17 @@ export class Pointers {
    * @returns {any} Whatever the function returns.
    */
   call(funcName, event, index, ...args) {
-    const o = this.get(index)
+    const o = this.get(index);
     if (!o) {
-      throw new TypeError(`Invalid object index: ${index}`)
+      throw new TypeError(`Invalid object index: ${index}`);
     }
     // @ts-ignore
-    const func = o[funcName]
-    const ftyp = typeof func
+    const func = o[funcName];
+    const ftyp = typeof func;
     if (ftyp !== 'function') {
-      throw new TypeError(`Invalid object for function: "${funcName}" ${ftyp} ${func}`)
+      throw new TypeError(`Invalid object for function: "${funcName}" ${ftyp} ${func}`);
     }
-    return func.call(o, event, ...args)
+    return func.call(o, event, ...args);
   }
 
   /**
@@ -147,7 +147,7 @@ export class Pointers {
    */
   bind(funcName, event) {
     // Bind to this, so that this.get works
-    return this.call.bind(this, funcName, event)
+    return this.call.bind(this, funcName, event);
   }
 }
 </code></pre>

@@ -1,2 +1,2 @@
 export default Module;
-declare function Module(Module?: {}): Promise<any>;
+declare function Module(moduleArg?: {}): Promise<any>;
