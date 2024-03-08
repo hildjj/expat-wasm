@@ -10,11 +10,12 @@
     "test": "ava",
     "coverage": "c8 npm test",
     "lint": "eslint .",
-    "doc": "jsdoc -c .jsdoc.conf",
+    "docs": "typedoc",
+    "postdocs": "npm run webpack",
     "ts": "tsc",
     "webpack": "cd webpack-demo && npm run build",
     "postwebpack": "copyfiles -V webpack-demo/index.html webpack-demo/dist/* docs/",
-    "build": "(cd wasm && ./setup && ./wmak) && npm run ts && npm run doc && npm run webpack && npm run lint"
+    "build": "(cd wasm && ./setup && ./wmak) && npm run ts && npm run docs && npm run lint"
   },
   "keywords": [
     "xml",
@@ -31,10 +32,9 @@
     "ava": "^6.1.2",
     "c8": "9.1.0",
     "copyfiles": "2.4.1",
-    "docdash": "2.0.2",
     "eslint": "8.57.0",
-    "jsdoc": "^4.0.2",
-    "typescript": "5.4.2"
+    "typedoc": "0.25.11",
+    "typescript": "5.3.3"
   },
   "packageManager": "pnpm@8.15.4",
   "engines": {

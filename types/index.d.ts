@@ -25,6 +25,55 @@ export class XmlParseError extends Error {
     base: string | undefined;
 }
 /**
+ * Encodings that expat supports.
+ *
+ * @typedef { undefined
+ * | null
+ * | "US-ASCII"
+ * | "UTF-8"
+ * | "UTF-16"
+ * | "ISO-8859-1"
+ * } XML_Encoding
+ */
+/**
+ * @typedef {object} ParserOptions
+ * @prop {XML_Encoding} [encoding] null will do content
+ *   sniffing.
+ * @prop {string|XmlParser.NO_NAMESPACES} [separator='|'] the separator
+ *   for namespace URI and element/attribute name.  Use
+ *   XmlParser.NO_NAMESPACES to get Expat's old, broken namespace
+ *   non-implementation via XmlParserCreate instead of XmlParserCreateNS.
+ * @prop {boolean} [expandInternalEntities] expand internal entities
+ * @prop {ReadEntity|null} [systemEntity] expand external entities using this
+ *   callback
+ * @prop {string|null} [base] Base URI for inclusions
+ */
+/**
+ * @typedef {Object} Model
+ * @property {string} [name] - Name of the model
+ * @property {number} [type] - Empty=1, Any, Mixed, Name, Choice, Seq
+ * @property {number} [quant] - None=0, Optional, Star, Plus
+ * @property {Model[]} [children]
+ */
+/**
+ * @typedef {Object} Pieces
+ * @property {string} [ns] the namespace URI
+ * @property {string} local the local name, or the EVENTS name if no namespace
+ * @property {string} [prefix] - the prefix used for the current name
+ */
+/**
+ * @typedef {"comment"
+ * | "endCdataSection"
+ * | "endDoctypeDecl"
+ * | "endElement"
+ * | "endNamespaceDecl"
+ * | "notationDecl"
+ * | "processingInstruction"
+ * | "startCdataSection"
+ * | "startNamespaceDecl"
+ * } SimpleEventName
+ */
+/**
  * @typedef {object} EntityInfo
  * @prop {string} base Fully-qualified URL for this entity
  * @prop {string|Buffer|Uint8Array|Uint8ClampedArray} data Data associated
@@ -77,6 +126,7 @@ export class XmlParser extends EventEmitter<XmlEvents> {
     static CHUNK_SIZE: number;
     /**
      * Global pointer namespace.
+     * @hidden
      */
     static "__#2@#pointers": Pointers;
     /**
@@ -117,12 +167,6 @@ export class XmlParser extends EventEmitter<XmlEvents> {
      */
     static XML_FreeContentModel(parser: number, model: number): void;
     /**
-     * Encodings that expat supports.
-     *
-     * @typedef { undefined|null|"US-ASCII"|"UTF-8"|"UTF-16"|"ISO-8859-1"
-     * } XML_Encoding
-     */
-    /**
      * Construct a new parser. If encoding is non-null, it specifies a character
      * encoding to use for the document. This overrides the document encoding
      * declaration. There are four built-in encodings:
@@ -135,7 +179,7 @@ export class XmlParser extends EventEmitter<XmlEvents> {
      * @param {XML_Encoding} [encoding]
      * @returns {number} Parser pointer
      */
-    static XML_ParserCreate(encoding?: "US-ASCII" | "UTF-8" | "UTF-16" | "ISO-8859-1" | null | undefined): number;
+    static XML_ParserCreate(encoding?: XML_Encoding): number;
     /**
      * Constructs a new parser that has namespace processing in effect.
      * Namespace expanded element names and attribute names are returned as a
@@ -159,7 +203,7 @@ export class XmlParser extends EventEmitter<XmlEvents> {
      * @param {number} sep The ASCII number value of the separator character
      * @returns {number} The created parser
      */
-    static XML_ParserCreateNS(encoding: "US-ASCII" | "UTF-8" | "UTF-16" | "ISO-8859-1" | null | undefined, sep: number): number;
+    static XML_ParserCreateNS(encoding: XML_Encoding, sep: number): number;
     /**
      * Creates an XML_Parser object that can parse an external general entity;
      * context is a '\0'-terminated string specifying the parse context;
@@ -180,7 +224,7 @@ export class XmlParser extends EventEmitter<XmlEvents> {
      * @param {number} context
      * @param {XML_Encoding} encoding
      */
-    static XML_ExternalEntityParserCreate(parser: number, context: number, encoding: "US-ASCII" | "UTF-8" | "UTF-16" | "ISO-8859-1" | null | undefined): any;
+    static XML_ExternalEntityParserCreate(parser: number, context: number, encoding: XML_Encoding): any;
     /**
      * Free memory used by the parser. Your application is responsible for
      * freeing any memory associated with user data.
@@ -251,7 +295,7 @@ export class XmlParser extends EventEmitter<XmlEvents> {
      * @param {XML_Encoding} encoding
      * @returns {number} Undocumented
      */
-    static XML_ParserReset(parser: number, encoding: "US-ASCII" | "UTF-8" | "UTF-16" | "ISO-8859-1" | null | undefined): number;
+    static XML_ParserReset(parser: number, encoding: XML_Encoding): number;
     /**
      * If XML_Parse or XML_ParseBuffer have returned XML_STATUS_ERROR, then
      * XML_GetErrorCode returns information about the error.
@@ -382,19 +426,6 @@ export class XmlParser extends EventEmitter<XmlEvents> {
      */
     static XML_StopParser(parser: number, resumable?: number | undefined): number;
     /**
-     * @typedef {object} ParserOptions
-     * @prop {XML_Encoding} [encoding] null will do content
-     *   sniffing.
-     * @prop {string|XmlParser.NO_NAMESPACES} [separator='|'] the separator
-     *   for namespace URI and element/attribute name.  Use
-     *   XmlParser.NO_NAMESPACES to get Expat's old, broken namespace
-     *   non-implementation via XmlParserCreate instead of XmlParserCreateNS.
-     * @prop {boolean} [expandInternalEntities] expand internal entities
-     * @prop {ReadEntity|null} [systemEntity] expand external entities using this
-     *   callback
-     * @prop {string|null} [base] Base URI for inclusions
-     */
-    /**
      * Create a parser instance.
      *
      * @param {XML_Encoding|ParserOptions} [encoding] null will do content
@@ -405,63 +436,11 @@ export class XmlParser extends EventEmitter<XmlEvents> {
      *   to get Expat's old, broken namespace non-implementation via
      *   XmlParserCreate instead of XmlParserCreateNS.
      */
-    constructor(encoding?: ("US-ASCII" | "UTF-8" | "UTF-16" | "ISO-8859-1" | null | undefined) | {
-        /**
-         * null will do content
-         * sniffing.
-         */
-        encoding?: "US-ASCII" | "UTF-8" | "UTF-16" | "ISO-8859-1" | null | undefined;
-        /**
-         * the separator
-         * for namespace URI and element/attribute name.  Use
-         * XmlParser.NO_NAMESPACES to get Expat's old, broken namespace
-         * non-implementation via XmlParserCreate instead of XmlParserCreateNS.
-         */
-        separator?: string | symbol | undefined;
-        /**
-         * expand internal entities
-         */
-        expandInternalEntities?: boolean | undefined;
-        /**
-         * expand external entities using this
-         * callback
-         */
-        systemEntity?: ReadEntity | null | undefined;
-        /**
-         * Base URI for inclusions
-         */
-        base?: string | null | undefined;
-    }, separator?: string | symbol | undefined);
+    constructor(encoding?: XML_Encoding | ParserOptions, separator?: string | symbol | undefined);
     /**
      * @type {Required<ParserOptions>}
      */
-    opts: Required<{
-        /**
-         * null will do content
-         * sniffing.
-         */
-        encoding?: "US-ASCII" | "UTF-8" | "UTF-16" | "ISO-8859-1" | null | undefined;
-        /**
-         * the separator
-         * for namespace URI and element/attribute name.  Use
-         * XmlParser.NO_NAMESPACES to get Expat's old, broken namespace
-         * non-implementation via XmlParserCreate instead of XmlParserCreateNS.
-         */
-        separator?: string | symbol | undefined;
-        /**
-         * expand internal entities
-         */
-        expandInternalEntities?: boolean | undefined;
-        /**
-         * expand external entities using this
-         * callback
-         */
-        systemEntity?: ReadEntity | null | undefined;
-        /**
-         * Base URI for inclusions
-         */
-        base?: string | null | undefined;
-    }>;
+    opts: Required<ParserOptions>;
     /**
      * @type {string|XmlParser.NO_NAMESPACES}
      * @private
@@ -606,13 +585,6 @@ export class XmlParser extends EventEmitter<XmlEvents> {
      * @private
      */
     private _startDoctypeDecl;
-    /**
-     * @typedef {Object} Model
-     * @property {string} [name] - Name of the model
-     * @property {number} [type] - Empty=1, Any, Mixed, Name, Choice, Seq
-     * @property {number} [quant] - None=0, Optional, Star, Plus
-     * @property {Model[]} [children]
-     */
     /**
      * Fill in a Model and its children, starting from a memory offset.
      *
@@ -776,18 +748,6 @@ export class XmlParser extends EventEmitter<XmlEvents> {
      * @param {string} uri
      */
     /**
-     * @typedef {"comment"
-     * | "endCdataSection"
-     * | "endDoctypeDecl"
-     * | "endElement"
-     * | "endNamespaceDecl"
-     * | "notationDecl"
-     * | "processingInstruction"
-     * | "startCdataSection"
-     * | "startNamespaceDecl"
-     * } SimpleEventName
-     */
-    /**
      * All events that take only string pointers.
      *
      * @template {SimpleEventName} K
@@ -833,31 +793,12 @@ export class XmlParser extends EventEmitter<XmlEvents> {
      */
     reset(): void;
     /**
-     * @typedef {Object} Pieces
-     * @property {string} [ns] the namespace URI
-     * @property {string} local the local name, or the EVENTS name if no namespace
-     * @property {string} [prefix] - the prefix used for the current name
-     */
-    /**
      * Parse an element or attribute name.
      *
      * @param {string} name - a EVENTS name, or a URI+local+prefix triple
      * @returns {Pieces} pieces - the pieces of the name
      */
-    triple(name: string): {
-        /**
-         * the namespace URI
-         */
-        ns?: string | undefined;
-        /**
-         * the local name, or the EVENTS name if no namespace
-         */
-        local: string;
-        /**
-         * - the prefix used for the current name
-         */
-        prefix?: string | undefined;
-    };
+    triple(name: string): Pieces;
     /**
      * Stop parsing in the middle of a document, usually from an event handler.
      * @param {number} [resumable=0] 1 for resumable
@@ -872,6 +813,67 @@ export class XmlParser extends EventEmitter<XmlEvents> {
     destroy(): void;
 }
 export default XmlParser;
+/**
+ * Encodings that expat supports.
+ */
+export type XML_Encoding = undefined | null | "US-ASCII" | "UTF-8" | "UTF-16" | "ISO-8859-1";
+export type ParserOptions = {
+    /**
+     * null will do content
+     * sniffing.
+     */
+    encoding?: XML_Encoding;
+    /**
+     * the separator
+     * for namespace URI and element/attribute name.  Use
+     * XmlParser.NO_NAMESPACES to get Expat's old, broken namespace
+     * non-implementation via XmlParserCreate instead of XmlParserCreateNS.
+     */
+    separator?: string | symbol | undefined;
+    /**
+     * expand internal entities
+     */
+    expandInternalEntities?: boolean | undefined;
+    /**
+     * expand external entities using this
+     * callback
+     */
+    systemEntity?: ReadEntity | null | undefined;
+    /**
+     * Base URI for inclusions
+     */
+    base?: string | null | undefined;
+};
+export type Model = {
+    /**
+     * - Name of the model
+     */
+    name?: string | undefined;
+    /**
+     * - Empty=1, Any, Mixed, Name, Choice, Seq
+     */
+    type?: number | undefined;
+    /**
+     * - None=0, Optional, Star, Plus
+     */
+    quant?: number | undefined;
+    children?: Model[] | undefined;
+};
+export type Pieces = {
+    /**
+     * the namespace URI
+     */
+    ns?: string | undefined;
+    /**
+     * the local name, or the EVENTS name if no namespace
+     */
+    local: string;
+    /**
+     * - the prefix used for the current name
+     */
+    prefix?: string | undefined;
+};
+export type SimpleEventName = "comment" | "endCdataSection" | "endDoctypeDecl" | "endElement" | "endNamespaceDecl" | "notationDecl" | "processingInstruction" | "startCdataSection" | "startNamespaceDecl";
 export type EntityInfo = {
     /**
      * Fully-qualified URL for this entity
@@ -893,21 +895,7 @@ export type XmlEvents = {
     characterData: [value: string];
     comment: [value: string];
     default: [value: string];
-    elementDecl: [name: string, model: {
-        /**
-         * - Name of the model
-         */
-        name?: string | undefined;
-        /**
-         * - Empty=1, Any, Mixed, Name, Choice, Seq
-         */
-        type?: number | undefined;
-        /**
-         * - None=0, Optional, Star, Plus
-         */
-        quant?: number | undefined;
-        children?: any[] | undefined;
-    }];
+    elementDecl: [name: string, model: Model];
     endBase: [base: string];
     endCdataSection: [];
     endDoctypeDecl: [];
