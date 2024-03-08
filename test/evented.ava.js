@@ -32,7 +32,7 @@ class ParseStream {
 }
 
 test('version', t => {
-  t.is(XmlParser.XML_ExpatVersion(), 'expat_2.5.0');
+  t.is(XmlParser.XML_ExpatVersion(), 'expat_2.6.1');
 });
 
 test('parse', t => {

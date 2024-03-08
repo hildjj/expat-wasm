@@ -5,10 +5,11 @@
   "main": "lib/index.js",
   "type": "module",
   "types": "types/index.d.ts",
+  "repository": "hildjj/expat-wasm",
   "scripts": {
     "test": "ava",
     "coverage": "c8 npm test",
-    "lint": "eslint . --ext js",
+    "lint": "eslint .",
     "doc": "jsdoc -c .jsdoc.conf",
     "ts": "tsc",
     "webpack": "cd webpack-demo && npm run build",
@@ -24,19 +25,19 @@
   "author": "Joe Hildebrand <joe-github@cursive.net>",
   "license": "MIT",
   "devDependencies": {
-    "@cto.af/eslint-config": "3.0.2",
+    "@cto.af/eslint-config": "4.0.0",
     "@types/emscripten": "1.39.10",
-    "@types/node": "20.10.5",
-    "ava": "^6.0.1",
-    "c8": "8.0.1",
+    "@types/node": "20.11.25",
+    "ava": "^6.1.2",
+    "c8": "9.1.0",
     "copyfiles": "2.4.1",
     "docdash": "2.0.2",
-    "eslint": "8.56.0",
+    "eslint": "8.57.0",
     "jsdoc": "^4.0.2",
-    "typescript": "5.3.3"
+    "typescript": "5.4.2"
   },
-  "repository": "hildjj/expat-wasm",
+  "packageManager": "pnpm@8.15.4",
   "engines": {
-    "node": ">=16"
+    "node": ">=18"
   }
 }

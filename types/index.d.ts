@@ -40,14 +40,40 @@ export class XmlParseError extends Error {
  * @returns {EntityInfo}
  */
 /**
+ * @typedef {object} XmlEvents
+ * @prop {[name: string | symbol, ...args: any[]]} star
+ * @prop {[elname: string, attname: string, attType: string, dflt: string, isrequired: boolean]} attlistDecl
+ * @prop {[value: string]} characterData
+ * @prop {[value: string]} comment
+ * @prop {[value: string]} default
+ * @prop {[name: string, model: Model]} elementDecl
+ * @prop {[base: string]} endBase
+ * @prop {[]} endCdataSection
+ * @prop {[]} endDoctypeDecl
+ * @prop {[]} endDoctypeDecl
+ * @prop {[name: string]} endElement
+ * @prop {[prefix: string]} endNamespaceDecl
+ * @prop {[entityName: string, isParameterEntity: boolean, value: string | null, base: string, systemId: string, publicId: string, notationName: string]} entityDecl
+ * @prop {[error: unknown]} error
+ * @prop {[notationName: string, base: NamedCurve, systemId: string, publicId: string]} notationDecl
+ * @prop {[target: string, data: string]} processingInstruction
+ * @prop {[entityName: string, isParameterEntity: boolean]} skippedEntity
+ * @prop {[base: string]} startBase
+ * @prop {[]} startCdataSection
+ * @prop {[doctypeName: string, sysid: string, pubid: string, hasInternalSubset: boolean]} startDoctypeDecl
+ * @prop {[name: string, attribs: object]} startElement
+ * @prop {[prefix: string, nsURI: string]} startNamespaceDecl
+ * @prop {[version: string, encoding: string, standalone: boolean]} xmlDecl
+ */
+/**
  * An evented parser based on a WASM-compiled version of expat.
  * NOTE: Please make sure to call {@link XmlParser#destroy destroy()}
  * when you are done.
  *
  * @class XmlParser
- * @extends {EventEmitter}
+ * @extends {EventEmitter<XmlEvents>}
  */
-export class XmlParser extends EventEmitter {
+export class XmlParser extends EventEmitter<XmlEvents> {
     static CHUNK_SIZE: number;
     /**
      * Global pointer namespace.
@@ -469,6 +495,15 @@ export class XmlParser extends EventEmitter {
      */
     private _registerHandlers;
     /**
+     * Emit an event, and copy it onto the '*' event.
+     *
+     * @template {keyof XmlEvents} K
+     * @param {K} eventName Name of the event that fired
+     * @param {XmlEvents[K]} args The parameters for the event
+     * @returns {boolean} True if there were listeners
+     */
+    emit<K extends keyof XmlEvents>(eventName: K, ...args: XmlEvents[K]): boolean;
+    /**
      * All extra text.  Mostly in the DTD.
      *
      * @event XmlParser#default
@@ -477,7 +512,7 @@ export class XmlParser extends EventEmitter {
     /**
      * Everything else?  Mostly odd bits of text in the DTD.
      *
-     * @param {string} event
+     * @param {"default"} event
      * @param {number} str
      * @param {number} len
      * @returns {boolean}
@@ -502,7 +537,7 @@ export class XmlParser extends EventEmitter {
      *     the event would be out of sync with the reporting of the
      *     declarations or attribute values
      *
-     * @param {string} event
+     * @param {"skippedEntity"} event
      * @param {number} entityName
      * @param {number} isParameterEntity
      * @returns {boolean}
@@ -519,7 +554,7 @@ export class XmlParser extends EventEmitter {
      *   pairs.  Names are similar to element name; URI+separator+name.
      */
     /**
-     * @param {string} event
+     * @param {"startElement"} event
      * @param {number} name
      * @param {number} attr
      * @returns {boolean}
@@ -527,7 +562,7 @@ export class XmlParser extends EventEmitter {
      */
     private _startElement;
     /**
-     * @param {string} event
+     * @param {"characterData"} event
      * @param {number} txt
      * @param {number} len
      * @returns {boolean}
@@ -544,7 +579,7 @@ export class XmlParser extends EventEmitter {
      */
     /**
      *
-     * @param {string} event
+     * @param {"xmlDecl"} event
      * @param {number} version
      * @param {number} encoding
      * @param {number} standalone
@@ -562,7 +597,7 @@ export class XmlParser extends EventEmitter {
      * @param {boolean} hasInternalSubset
      */
     /**
-     * @param {string} event
+     * @param {"startDoctypeDecl"} event
      * @param {number} doctypeName
      * @param {number} sysid
      * @param {number} pubid
@@ -583,6 +618,7 @@ export class XmlParser extends EventEmitter {
      *
      * @param {number} offset
      * @param {Model} model
+     * @returns {Model}
      * @private
      */
     private _unpackModel;
@@ -594,7 +630,7 @@ export class XmlParser extends EventEmitter {
      * @param {Model} model Description of the element
      */
     /**
-     * @param {string} event
+     * @param {"elementDecl"} event
      * @param {number} nm
      * @param {number} model
      * @returns {boolean}
@@ -612,7 +648,7 @@ export class XmlParser extends EventEmitter {
      * @param {boolean} isrequired - is the attribute required
      */
     /**
-     * @param {string} event
+     * @param {"attlistDecl"} event
      * @param {number} elname
      * @param {number} attname
      * @param {number} attType
@@ -635,7 +671,7 @@ export class XmlParser extends EventEmitter {
      * @param {string} notationName
      */
     /**
-     * @param {string} event
+     * @param {"entityDecl"} event
      * @param {number} entityName
      * @param {number} isParameterEntity
      * @param {number} value
@@ -740,9 +776,22 @@ export class XmlParser extends EventEmitter {
      * @param {string} uri
      */
     /**
+     * @typedef {"comment"
+     * | "endCdataSection"
+     * | "endDoctypeDecl"
+     * | "endElement"
+     * | "endNamespaceDecl"
+     * | "notationDecl"
+     * | "processingInstruction"
+     * | "startCdataSection"
+     * | "startNamespaceDecl"
+     * } SimpleEventName
+     */
+    /**
      * All events that take only string pointers.
      *
-     * @param {string} event
+     * @template {SimpleEventName} K
+     * @param {K} event
      * @param  {...number} args
      * @returns {boolean} True if event fired
      * @private
@@ -838,6 +887,44 @@ export type EntityInfo = {
  * Read data associated with an entity.  MUST be synchronous.
  */
 export type ReadEntity = (base: string, systemId: string, publicId?: string | undefined) => EntityInfo;
+export type XmlEvents = {
+    star: [name: string | symbol, ...args: any[]];
+    attlistDecl: [elname: string, attname: string, attType: string, dflt: string, isrequired: boolean];
+    characterData: [value: string];
+    comment: [value: string];
+    default: [value: string];
+    elementDecl: [name: string, model: {
+        /**
+         * - Name of the model
+         */
+        name?: string | undefined;
+        /**
+         * - Empty=1, Any, Mixed, Name, Choice, Seq
+         */
+        type?: number | undefined;
+        /**
+         * - None=0, Optional, Star, Plus
+         */
+        quant?: number | undefined;
+        children?: any[] | undefined;
+    }];
+    endBase: [base: string];
+    endCdataSection: [];
+    endDoctypeDecl: [];
+    endElement: [name: string];
+    endNamespaceDecl: [prefix: string];
+    entityDecl: [entityName: string, isParameterEntity: boolean, value: string | null, base: string, systemId: string, publicId: string, notationName: string];
+    error: [error: unknown];
+    notationDecl: [notationName: string, base: NamedCurve, systemId: string, publicId: string];
+    processingInstruction: [target: string, data: string];
+    skippedEntity: [entityName: string, isParameterEntity: boolean];
+    startBase: [base: string];
+    startCdataSection: [];
+    startDoctypeDecl: [doctypeName: string, sysid: string, pubid: string, hasInternalSubset: boolean];
+    startElement: [name: string, attribs: object];
+    startNamespaceDecl: [prefix: string, nsURI: string];
+    xmlDecl: [version: string, encoding: string, standalone: boolean];
+};
 import { EventEmitter } from 'events';
 import { Buffer } from 'buffer';
 import { Pointers } from './pointers.js';
