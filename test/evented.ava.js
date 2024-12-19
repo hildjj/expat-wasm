@@ -1,9 +1,9 @@
-import {Buffer} from 'buffer';
+import {Buffer} from 'node:buffer';
 import XmlParser from '../lib/index.js';
-import fs from 'fs/promises';
-import path from 'path';
+import fs from 'node:fs/promises';
+import path from 'node:path';
 import test from 'ava';
-import url from 'url';
+import url from 'node:url';
 
 const __filename = url.fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -32,7 +32,7 @@ class ParseStream {
 }
 
 test('version', t => {
-  t.is(XmlParser.XML_ExpatVersion(), 'expat_2.6.1');
+  t.is(XmlParser.XML_ExpatVersion(), 'expat_2.6.4');
 });
 
 test('parse', t => {
@@ -167,7 +167,7 @@ test('base', async t => {
   // end up in the snapshot
   let p = new XmlParser({
     base: 'file:///fixtures/external.xml',
-    systemEntity(base, sysId, pubId) {
+    systemEntity(base, sysId, _pubId) {
       t.is(sysId, 'address.dtd');
       return {
         base: new URL(sysId, base).toString(),
@@ -221,7 +221,7 @@ test('base', async t => {
 
   const q = new XmlParser({
     base: 'file:///fixtures/bad.xml',
-    systemEntity(base, sysId, pubId) {
+    systemEntity(base, sysId, _pubId) {
       t.is(sysId, 'bad.dtd');
       return {
         base: new URL(sysId, base).toString(),
@@ -243,6 +243,5 @@ test('stop parser', t => {
   t.throws(() => p.stop());
 
   const q = new XmlParser();
-  q.stop();
   t.throws(() => q.stop());
 });

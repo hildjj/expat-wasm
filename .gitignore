@@ -3,3 +3,6 @@ npm-debug.log
 wasm/libexpat/
 coverage/
 .nyc_output/
+.vscode/
+docs/
+types/

@@ -10,12 +10,12 @@
   "keywords": [],
   "author": "Joe Hildebrand <joe-github@cursive.net>",
   "license": "MIT",
-  "packageManager": "pnpm@8.15.4",
+  "packageManager": "pnpm@9.15.0",
   "devDependencies": {
     "buffer": "6.0.3",
     "expat-wasm": "file:..",
     "path-browserify": "1.0.1",
-    "webpack": "^5.90.3",
+    "webpack": "^5.97.1",
     "webpack-cli": "^5.1.4"
   }
 }

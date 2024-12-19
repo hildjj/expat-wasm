@@ -18,6 +18,7 @@ export default [
         capIsNew: false,
         properties: true,
       }],
+      'n/prefer-node-protocol': 'off',
     },
   },
   {
