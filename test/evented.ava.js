@@ -1,4 +1,5 @@
 import {Buffer} from 'node:buffer';
+import {ParseStream} from './stream.js';
 import XmlParser from '../lib/index.js';
 import fs from 'node:fs/promises';
 import path from 'node:path';
@@ -7,29 +8,6 @@ import url from 'node:url';
 
 const __filename = url.fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-
-/** @typedef {[string, ...any]} Event */
-
-class ParseStream {
-  /**
-   *
-   * @param {XmlParser} parser
-   */
-  constructor(parser) {
-    /**
-     * @type {Event[]}
-     */
-    this.events = [];
-    this.parser = parser;
-    parser.on('*', /** @param {string} event */ (event, ...args) => {
-      this.events.push([event, ...args]);
-    });
-  }
-
-  read() {
-    return this.events.shift();
-  }
-}
 
 test('version', t => {
   t.is(XmlParser.XML_ExpatVersion(), 'expat_2.7.1');
@@ -215,6 +193,22 @@ test('base', async t => {
   p.destroy();
   t.truthy(er);
 
+  const eepc = XmlParser.XML_ExternalEntityParserCreate;
+  XmlParser.XML_ExternalEntityParserCreate = () => null;
+  p = new XmlParser({
+    base: 'file:///fixtures/external.xml',
+    systemEntity(base, sysId, _pubId) {
+      t.is(sysId, 'address.dtd');
+      return {
+        base: new URL(sysId, base).toString(),
+        data: address,
+      };
+    },
+  });
+  t.throws(() => p.parse(external));
+  p.destroy();
+  XmlParser.XML_ExternalEntityParserCreate = eepc;
+
   const badPath = path.join(__dirname, 'fixtures', 'badExternal.xml');
   const bad = await fs.readFile(badPath);
   const badDTD = await fs.readFile(path.join(__dirname, 'fixtures', 'bad.dtd'));
@@ -244,4 +238,24 @@ test('stop parser', t => {
 
   const q = new XmlParser();
   t.throws(() => q.stop());
+});
+
+test('double destroy', t => {
+  const p = new XmlParser();
+  const ps = new ParseStream(p);
+  t.true(p.destroy());
+  t.false(p.destroy());
+  t.is(ps.events.length, 2);
+  t.deepEqual(ps.events, [
+    ['destroy', true],
+    ['destroy', false],
+  ]);
+});
+
+test('XML_SetBase', t => {
+  // Simulate out of memory for SetBase.
+  const sb = XmlParser.XML_SetBase;
+  XmlParser.XML_SetBase = () => 0;
+  t.throws(() => new XmlParser({base: 'foo'}));
+  XmlParser.XML_SetBase = sb;
 });

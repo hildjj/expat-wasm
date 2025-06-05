@@ -4,6 +4,7 @@
     "lcov"
   ],
   "exclude": [
+    "ava.config.js",
     "test/**",
     "node_modules/**",
     "lib/expat.js",
