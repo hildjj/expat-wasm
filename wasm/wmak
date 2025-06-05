@@ -8,7 +8,7 @@ emcc \
   -o "${DESTJS}" \
   --extern-pre-js pre.js \
   -s RESERVED_FUNCTION_POINTERS=30 \
-  -s EXPORTED_RUNTIME_METHODS='["cwrap", "ccall", "addFunction", "removeFunction", "UTF8ToString"]' \
+  -s EXPORTED_RUNTIME_METHODS='["cwrap", "ccall", "addFunction", "removeFunction", "UTF8ToString", "HEAPU32"]' \
   -s EXPORTED_FUNCTIONS=@expat_exports.json \
   -s EXPORT_ES6=1 \
   -s MODULARIZE=1 \
