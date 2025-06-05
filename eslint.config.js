@@ -5,6 +5,7 @@ export default [
   {
     ignores: [
       'lib/expat.js',
+      'test/using.ava.js',
       'webpack-demo/dist/**',
       '**/*.d.ts',
     ],

@@ -5,6 +5,10 @@
   "main": "lib/index.js",
   "type": "module",
   "types": "types/index.d.ts",
+  "files": [
+    "lib/*",
+    "types/*"
+  ],
   "repository": "hildjj/expat-wasm",
   "scripts": {
     "test": "ava",
