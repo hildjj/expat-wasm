@@ -7,7 +7,6 @@ export default [
       'lib/expat.js',
       'test/using.ava.js',
       'webpack-demo/dist/**',
-      '**/*.d.ts',
     ],
   },
   ...es6,
@@ -20,6 +19,7 @@ export default [
         properties: true,
       }],
       'n/prefer-node-protocol': 'off',
+      'n/no-top-level-await': 'off',
     },
   },
   {
