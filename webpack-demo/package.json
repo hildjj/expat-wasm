@@ -10,7 +10,7 @@
   "keywords": [],
   "author": "Joe Hildebrand <joe-github@cursive.net>",
   "license": "MIT",
-  "packageManager": "pnpm@10.11.1",
+  "packageManager": "pnpm@10.12.4",
   "devDependencies": {
     "buffer": "6.0.3",
     "expat-wasm": "file:..",

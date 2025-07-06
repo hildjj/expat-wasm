@@ -20,4 +20,5 @@ emcc \
   -flto=full \
   -s SINGLE_FILE=1 \
   --closure 1 \
+  --emit-tsd "${DEST}.d.ts" \
   -Os
