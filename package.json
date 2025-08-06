@@ -1,6 +1,6 @@
 {
   "name": "expat-wasm",
-  "version": "4.0.1",
+  "version": "4.0.2",
   "description": "Evented parser based on a WASM-compiled version of expat",
   "main": "lib/index.js",
   "type": "module",
