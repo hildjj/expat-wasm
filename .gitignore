@@ -1,8 +1,9 @@
-node_modules/
-npm-debug.log
-wasm/libexpat/
-coverage/
+.cert/
 .nyc_output/
 .vscode/
+coverage/
 docs/
+node_modules/
+npm-debug.log
 types/
+wasm/libexpat/
