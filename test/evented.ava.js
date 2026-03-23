@@ -10,7 +10,7 @@ const __filename = url.fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 test('version', t => {
-  t.is(XmlParser.XML_ExpatVersion(), 'expat_2.7.4');
+  t.is(XmlParser.XML_ExpatVersion(), 'expat_2.7.5');
 });
 
 test('parse', t => {
