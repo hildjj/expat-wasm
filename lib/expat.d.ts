@@ -1,21 +1,21 @@
 // TypeScript bindings for emscripten-generated code.  Automatically generated at compile time.
-declare namespace RuntimeExports {
+declare var RuntimeExports: {
     /**
      * @param {string=} returnType
      * @param {Array=} argTypes
      * @param {Object=} opts
      */
-    function cwrap(ident: any, returnType?: string | undefined, argTypes?: any[] | undefined, opts?: any | undefined): (...args: any[]) => any;
+    cwrap: (ident: any, returnType?: string | undefined, argTypes?: any[] | undefined, opts?: Object | undefined) => (...args: any[]) => any;
     /**
      * @param {string|null=} returnType
      * @param {Array=} argTypes
      * @param {Array=} args
      * @param {Object=} opts
      */
-    function ccall(ident: any, returnType?: (string | null) | undefined, argTypes?: any[] | undefined, args?: any[] | undefined, opts?: any | undefined): any;
+    ccall: (ident: any, returnType?: (string | null) | undefined, argTypes?: any[] | undefined, args?: any[] | undefined, opts?: Object | undefined) => any;
     /** @param {string=} sig */
-    function addFunction(func: any, sig?: string | undefined): any;
-    function removeFunction(index: any): void;
+    addFunction: (func: any, sig?: string | undefined) => any;
+    removeFunction: (index: any) => void;
     /**
      * Given a pointer 'ptr' to a null-terminated UTF8-encoded string in the
      * emscripten HEAP, returns a copy of that string as a Javascript String object.
@@ -29,9 +29,10 @@ declare namespace RuntimeExports {
      * @param {boolean=} ignoreNul - If true, the function will not stop on a NUL character.
      * @return {string}
      */
-    function UTF8ToString(ptr: number, maxBytesToRead?: number | undefined, ignoreNul?: boolean | undefined): string;
-    let HEAPU32: any;
-}
+    UTF8ToString: (ptr: number, maxBytesToRead?: number | undefined, ignoreNul?: boolean | undefined) => string;
+    /** @type {!Uint32Array} */
+    HEAPU32: Uint32Array;
+};
 interface WasmModule {
   _XML_ParserCreate(_0: number): number;
   _XML_ParserCreateNS(_0: number, _1: number): number;

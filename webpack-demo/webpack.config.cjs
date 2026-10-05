@@ -19,11 +19,15 @@ module.exports = {
       buffer: require.resolve('buffer/'),
       events: require.resolve('events/'),
       module: false,
+      crypto: false,
     },
   },
   plugins: [
     new webpack.ProvidePlugin({
       Buffer: ['buffer', 'Buffer'],
+    }),
+    new webpack.NormalModuleReplacementPlugin(/^node:/, resource => {
+      resource.request = resource.request.replace(/^node:/, '');
     }),
   ],
   experiments: {

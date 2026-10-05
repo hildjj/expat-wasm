@@ -1,3 +1,6 @@
 linkWorkspacePackages: true
 packages:
   - webpack-demo
+auditConfig:
+  ignoreGhsas:
+    - GHSA-vfj7-8cjw-p6xm
