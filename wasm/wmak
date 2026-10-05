@@ -4,10 +4,10 @@ DEST="../lib/expat"
 DESTJS="${DEST}.js"
 
 emcc \
-  libexpat/expat/lib/xml*.o \
+  libexpat/expat/lib/xml*.o libexpat/expat/lib/xcs.o libexpat/expat/lib/random_getentropy.o \
   -o "${DESTJS}" \
   --extern-pre-js pre.js \
-  -s ENVIRONMENT=web,shell \
+  -s ENVIRONMENT=web,node \
   -s RESERVED_FUNCTION_POINTERS=30 \
   -s EXPORTED_RUNTIME_METHODS='["cwrap", "ccall", "addFunction", "removeFunction", "UTF8ToString", "HEAPU32"]' \
   -s EXPORTED_FUNCTIONS=@expat_exports.json \
