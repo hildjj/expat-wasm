@@ -10,13 +10,13 @@
   "keywords": [],
   "author": "Joe Hildebrand <joe-github@cursive.net>",
   "license": "MIT",
-  "packageManager": "pnpm@10.32.1",
+  "packageManager": "pnpm@12.17.0",
   "devDependencies": {
     "buffer": "6.0.3",
     "expat-wasm": "*",
     "path-browserify": "1.0.1",
     "terser-webpack-plugin": "^5.6.1",
-    "webpack": "^5.111.1",
+    "webpack": "^5.112.2",
     "webpack-cli": "^5.1.4"
   }
 }

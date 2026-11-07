@@ -1,0 +1,3 @@
+[submodule "wasm/libexpat"]
+	path = wasm/libexpat
+	url = https://github.com/libexpat/libexpat
