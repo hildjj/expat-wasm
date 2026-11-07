@@ -6,4 +6,3 @@ docs/
 node_modules/
 npm-debug.log
 types/
-wasm/libexpat/
