@@ -1,6 +1,3 @@
-[submodule "wasm/--force"]
-	path = wasm/--force
-	url = https://github.com/libexpat/libexpat
 [submodule "wasm/libexpat"]
 	path = wasm/libexpat
 	url = https://github.com/libexpat/libexpat
